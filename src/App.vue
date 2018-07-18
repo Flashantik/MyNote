@@ -27,6 +27,7 @@
           </v-list-tile-action>
         </v-list-tile>
       </v-list>
+
       <v-list class="pt-0" dense>
         <v-divider light></v-divider>
         <v-list-tile>
@@ -37,7 +38,7 @@
             <v-list-tile-title>Регистрация</v-list-tile-title>
           </v-list-tile-content>
         </v-list-tile>
-        
+
         <v-list-tile>
           <v-list-tile-action>
             <v-icon>face</v-icon>

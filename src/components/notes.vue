@@ -1,33 +1,33 @@
 <template>
 <v-container id="contain">
-  <div class="top_header" v-show="pushed">
+  <div class="top_header" v-if="pushed">
     <div class="header"
     @mouseenter="getUp"
-    @mouseout="clearUp">
+    @mouseout="clearMove">
     <span style="transform:translateX(-15px);font-size:30px; display:block; margin-left:50%; color:white">🡹</span>
     </div>
   </div>
-  <div class="top_footer" v-show="pushed">
+  <div class="top_footer" v-if="pushed">
       <div class="footer"
       @mouseenter="getDown"
-      @mouseout="clearDown">
+      @mouseout="clearMove">
       <span style="transform:translateX(-15px);font-size:30px; display:block; margin-left:50%">🡻</span>
       </div>
   </div>
-<grid
-  :onWindowResize="resized" 
+  <v-btn color="info" @click.stop="addNotes">Добавить Notes</v-btn>
+<grid id="thek"
   :center="false"
   :draggable="true"
   :sortable="true"
   :items="items"
-  :width="80"
-  :cellWidth="290"
+  :width="100"
+  :cellWidth="289.5"
   :cellHeight="400"
   @dragend="sortNotes"
-  @dragstart="pushed=true"
+  @dragstart="pressed"
   >
-  <template slot="cell" slot-scope="props" >
-    <v-card>
+  <template slot="cell" slot-scope="props">
+    <v-card class="note">
         <v-card-media
           class="white--text"
           height="200px"
@@ -36,7 +36,7 @@
           <v-container fill-height fluid>
             <v-layout fill-height>
               <v-flex xs12 align-end flexbox>
-                <span class="headline">Top 10 Australian beaches</span>
+                <span class="headline">{{props.item}}</span>
               </v-flex>
             </v-layout>
           </v-container>
@@ -58,6 +58,19 @@
 </v-container>
 </template>
 
+
+/*
+ 
+  ######   ######  ########  #### ########  ########     ######   #######  ########  ######## 
+ ##    ## ##    ## ##     ##  ##  ##     ##    ##       ##    ## ##     ## ##     ## ##       
+ ##       ##       ##     ##  ##  ##     ##    ##       ##       ##     ## ##     ## ##       
+  ######  ##       ########   ##  ########     ##       ##       ##     ## ##     ## ######   
+       ## ##       ##   ##    ##  ##           ##       ##       ##     ## ##     ## ##       
+ ##    ## ##    ## ##    ##   ##  ##           ##       ##    ## ##     ## ##     ## ##       
+  ######   ######  ##     ## #### ##           ##        ######   #######  ########  ######## 
+ 
+*/
+
 <script>
 export default{
   data () {
@@ -68,12 +81,18 @@ export default{
       ],
       down: null,
       up: null,
-      pushed: false
+      pushed: false,
+      windowHeight: null,
+      windowHeightMin: null,
+      windowHeightMax: null
     }
   },
   methods: {
-    resized (e) {
-      this.windowHeight = document.documentElement.clientHeight
+    pressed () {
+      this.pushed = true
+    },
+    addNotes () {
+      this.items.unshift('lol')
     },
     sortNotes (e) {
       let newNotes = []
@@ -83,8 +102,7 @@ export default{
       this.sortedNotes = newNotes
       console.log('Отсортированный массив: ' + newNotes)
       this.pushed = false
-      this.clearDown()
-      this.clearUp()
+      this.clearMove()
     },
     getDown () {
       this.down = setInterval(function () {
@@ -96,21 +114,79 @@ export default{
         window.scrollTo(0, window.pageYOffset - 5)
       }, 20)
     },
-    clearUp () {
+    clearMove () {
       clearInterval(this.up)
-    },
-    clearDown () {
       clearInterval(this.down)
     }
   },
+  beforeMount () {
+    this.$nextTick(() => {
+      window.addEventListener('resize', getWindowHeight => {
+        this.windowHeight = document.documentElement.clientHeight
+        this.windowHeightMax = this.windowHeight * 0.9
+        this.windowHeightMin = this.windowHeight * 0.1
+      })
+    })
+  },
   created () {
-    for (var i = 0; i < 25; i++) {
+    for (var i = 0; i < 50; i++) {
       this.items.push(i)
     }
+    this.windowHeight = document.documentElement.clientHeight
+    this.windowHeightMax = this.windowHeight * 0.9
+    this.windowHeightMin = this.windowHeight * 0.1
+  },
+  mounted () {
+    let kyda = false
+    let note = document.getElementById('thek')
+    note.addEventListener('touchstart', e => {
+      e.preventDefault()
+      this.pushed = true
+    }, false)
+    note.addEventListener('touchmove', e => {
+      if (e.changedTouches[0].clientY >= this.windowHeightMax) {
+        if (kyda === false) {
+          this.getDown()
+        }
+        kyda = true
+      } else if (e.changedTouches[0].clientY <= this.windowHeightMin) {
+        if (kyda === false) {
+          this.getUp()
+        }
+        kyda = true
+      } else if (kyda === true) {
+        kyda = false
+        this.clearMove()
+      }
+    }, false)
+    document.addEventListener('touchend', () => {
+      this.clearMove()
+    }, false)
+  },
+  beforeDestroy () {
+    window.removeEventListener('resize', this.getWindowHeight)
   }
 }
 </script>
+
+
+/*
+ 
+  ######   ######   ######      ######   #######  ########  ######## 
+ ##    ## ##    ## ##    ##    ##    ## ##     ## ##     ## ##       
+ ##       ##       ##          ##       ##     ## ##     ## ##       
+ ##        ######   ######     ##       ##     ## ##     ## ######   
+ ##             ##       ##    ##       ##     ## ##     ## ##       
+ ##    ## ##    ## ##    ##    ##    ## ##     ## ##     ## ##       
+  ######   ######   ######      ######   #######  ########  ######## 
+ 
+*/
 <style scoped>
+
+.note{
+margin: 3%;
+}
+
 .contain{
   position: relative;
   width: 90%;
@@ -138,9 +214,11 @@ export default{
   outline: 3px dashed white;
 }
 .top_header{
+  background-color: rgba(100,100,100,.3);
   top:0;
 }
 .top_footer{
+    background-color: rgba(100,100,100,.3);
   bottom:0;
 }
 .top_header, .top_footer {

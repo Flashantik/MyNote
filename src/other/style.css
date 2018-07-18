@@ -1,3 +1,11 @@
-.v-grid-item-wrapper{
-  padding: 0 20px;
+@media only screen and (max-width: 1264px){
+  #contain {
+    position: relative;
+    left: -10px;
+  }
+}
+
+.v-grid-item-dragging {
+  transition: opacity .4s ease;
+  opacity: .75;
 }
