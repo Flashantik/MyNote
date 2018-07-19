@@ -1,24 +1,25 @@
 <template>
 <v-container id="contain">
-  <div class="top_header" v-if="pushed">
+  <div class="top_header" v-if="pushed  ">
     <div class="header"
     @mouseenter="getUp"
     @mouseout="clearMove">
-    <span style="transform:translateX(-15px);font-size:30px; display:block; margin-left:50%; color:white">🡹</span>
     </div>
   </div>
   <div class="top_footer" v-if="pushed">
       <div class="footer"
       @mouseenter="getDown"
       @mouseout="clearMove">
-      <span style="transform:translateX(-15px);font-size:30px; display:block; margin-left:50%">🡻</span>
       </div>
   </div>
   <v-btn color="info" @click.stop="addNotes">Добавить Notes</v-btn>
-<grid id="thek"
-  :center="false"
-  :draggable="true"
-  :sortable="true"
+  <v-btn color="error" @click="editMode = !editMode">Изменить состояние</v-btn>
+  <v-btn color="error">other</v-btn>
+{{pushed}}<br> 
+<grid
+  :center="true"
+  :draggable="editMode"
+  :sortable="editMode"
   :items="items"
   :width="100"
   :cellWidth="289.5"
@@ -28,6 +29,7 @@
   >
   <template slot="cell" slot-scope="props">
     <v-card class="note">
+      <router-link v-if="!editMode" to="/" class="link"> </router-link>
         <v-card-media
           class="white--text"
           height="200px"
@@ -49,7 +51,6 @@
           </div>
         </v-card-title>
         <v-card-actions>
-          
         </v-card-actions>
       </v-card>
 </template>
@@ -57,7 +58,6 @@
 
 </v-container>
 </template>
-
 
 /*
  
@@ -70,7 +70,6 @@
   ######   ######  ##     ## #### ##           ##        ######   #######  ########  ######## 
  
 */
-
 <script>
 export default{
   data () {
@@ -81,6 +80,7 @@ export default{
       ],
       down: null,
       up: null,
+      editMode: false,
       pushed: false,
       windowHeight: null,
       windowHeightMin: null,
@@ -104,14 +104,14 @@ export default{
       this.pushed = false
       this.clearMove()
     },
-    getDown () {
+    getDown (e, value = 10) {
       this.down = setInterval(function () {
-        window.scrollTo(0, window.pageYOffset + 5)
+        window.scrollTo(0, window.pageYOffset + value)
       }, 20)
     },
-    getUp () {
+    getUp (e, value = 10) {
       this.up = setInterval(() => {
-        window.scrollTo(0, window.pageYOffset - 5)
+        window.scrollTo(0, window.pageYOffset - value)
       }, 20)
     },
     clearMove () {
@@ -138,29 +138,35 @@ export default{
   },
   mounted () {
     let kyda = false
-    let note = document.getElementById('thek')
-    note.addEventListener('touchstart', e => {
-      e.preventDefault()
-      this.pushed = true
-    }, false)
-    note.addEventListener('touchmove', e => {
-      if (e.changedTouches[0].clientY >= this.windowHeightMax) {
-        if (kyda === false) {
-          this.getDown()
+    let note = document.getElementsByClassName('note')
+    for (var i = 0; i < note.length; i++) {
+      note[i].addEventListener('touchstart', e => {
+        if (this.editMode) {
+          e.preventDefault()
+          this.pushed = true
         }
-        kyda = true
-      } else if (e.changedTouches[0].clientY <= this.windowHeightMin) {
-        if (kyda === false) {
-          this.getUp()
+      }, false)
+
+      note[i].addEventListener('touchmove', e => {
+        if (e.changedTouches[0].clientY >= this.windowHeightMax) {
+          if (kyda === false) {
+            this.getDown(undefined, 15)
+          }
+          kyda = true
+        } else if (e.changedTouches[0].clientY <= this.windowHeightMin) {
+          if (kyda === false) {
+            this.getUp(undefined, 15)
+          }
+          kyda = true
+        } else if (kyda === true) {
+          kyda = false
+          this.clearMove()
         }
-        kyda = true
-      } else if (kyda === true) {
-        kyda = false
-        this.clearMove()
-      }
-    }, false)
+      }, false)
+    }
     document.addEventListener('touchend', () => {
       this.clearMove()
+      this.pushed = false
     }, false)
   },
   beforeDestroy () {
@@ -171,7 +177,7 @@ export default{
 
 
 /*
- 
+
   ######   ######   ######      ######   #######  ########  ######## 
  ##    ## ##    ## ##    ##    ##    ## ##     ## ##     ## ##       
  ##       ##       ##          ##       ##     ## ##     ## ##       
@@ -179,12 +185,21 @@ export default{
  ##             ##       ##    ##       ##     ## ##     ## ##       
  ##    ## ##    ## ##    ##    ##    ## ##     ## ##     ## ##       
   ######   ######   ######      ######   #######  ########  ######## 
- 
+
 */
+
 <style scoped>
 
+.link{
+  position: absolute;
+  width: 100%;
+  z-index: 999;
+  height: 100%;
+  background-color: rgba(48, 213, 200, .3);
+}
 .note{
 margin: 3%;
+cursor: move;
 }
 
 .contain{
@@ -196,29 +211,29 @@ margin: 3%;
   position: fixed;
   left:0;
   right:0;
-  z-index: 100;
+  z-index: 998;
   transition: opacity .4s ease;
 }
 .footer {
-  opacity: 0;
   bottom: 0;
-  height: 5vh;
-  background-color: rgba(48, 213, 200, .3);
   outline: 3px dashed black;
 }
 .header{
-  opacity: 0;
   top:0;
-  height: 5vh;
-  background-color: rgba(48, 213, 200, .3);
   outline: 3px dashed white;
 }
+
+.header, .footer {
+  opacity: 0;
+  height: 5vh;
+  z-index: 999;
+
+  background-color: rgba(48, 213, 200, .3);
+}
 .top_header{
-  background-color: rgba(100,100,100,.3);
   top:0;
 }
 .top_footer{
-    background-color: rgba(100,100,100,.3);
   bottom:0;
 }
 .top_header, .top_footer {

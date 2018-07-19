@@ -3,6 +3,7 @@ import Router from 'vue-router'
 import authGuard from './authGuard'
 import AppHome from '../components/Home.vue'
 import AppNotes from '../components/notes.vue'
+// import AppNotes from '../components/notes.vue'
 
 Vue.use(Router)
 
@@ -20,6 +21,13 @@ export default new Router({
       requiresAuth: true,
       beforeEnter: authGuard
     }
+    // {
+    //   path: '/',
+    //   name: 'Notes',
+    //   component: AppNotes,
+    //   requiresAuth: true,
+    //   beforeEnter: authGuard
+    // }
   ],
   mode: 'history'
 })

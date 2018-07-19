@@ -5,6 +5,10 @@
   }
 }
 
+/* .v-grid-item-wrapper{
+margin: 
+} */
+
 .v-grid-item-dragging {
   transition: opacity .4s ease;
   opacity: .75;
