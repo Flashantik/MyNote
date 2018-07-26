@@ -69,9 +69,9 @@
          О сайте</v-btn>
       </v-toolbar-items>
     </v-toolbar>
-                      <v-content>
-                        <router-view></router-view>
-                      </v-content>
+  <v-content>
+    <router-view></router-view>
+  </v-content>
   <template v-if="error">
       <v-snackbar
       :timeout="5000"

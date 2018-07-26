@@ -98,7 +98,7 @@ export default {
       commit('clearError')
       commit('setLoading', true)
       try {
-        console.log(payload)
+        console.log(payload.uid)
         // let userOpt
         // await fb.database().ref(`users`).orderByChild('uid').equalTo(payload.uid).on('value', function (snapshot) {
         //   let thatUser = snapshot.val()

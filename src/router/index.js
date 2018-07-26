@@ -1,9 +1,9 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import authGuard from './authGuard'
+import redirection from './redirection'
 import AppHome from '../components/Home.vue'
 import AppNotes from '../components/notes.vue'
-// import AppNotes from '../components/notes.vue'
 
 Vue.use(Router)
 
@@ -12,7 +12,8 @@ export default new Router({
     {
       path: '/',
       name: 'Home',
-      component: AppHome
+      component: AppHome,
+      beforeEnter: redirection
     },
     {
       path: '/notes',
