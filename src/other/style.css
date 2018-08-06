@@ -93,4 +93,6 @@ margin:
 	margin: 0 12px -13px 0;
 }
 
-
+.ql-editor{
+  max-height: 80vh;
+}

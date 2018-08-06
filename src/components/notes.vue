@@ -31,6 +31,8 @@
         </v-toolbar>
         <v-container>
           <h3>Главное</h3>
+            <v-btn>Сделай жирным</v-btn>
+          <div>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Voluptas iusto eius earum error, porro omnis natus quam animi totam quos. Facere, impedit quisquam maiores quis fugiat officia! Quis, eaque voluptas?</div>
           <v-subheader style="color:black">Заголовок записки</v-subheader>
             <v-form v-model="valid" ref="form" validation>
              <v-flex xs12 sm10 md8>
@@ -44,7 +46,7 @@
           ></v-text-field>
              </v-flex>
              <v-flex xs12 sm10 md8>
-          <v-subheader style="color:black">Краткое описание записки</v-subheader>
+          <v-subheader style="color:black" @click.right="whatText">Краткое описание записки</v-subheader>
                <v-textarea
             label="Описание"
             hint="Введите сюда краткое описание записки"
@@ -180,7 +182,7 @@
   >
   <template slot="cell" slot-scope="props">
     <v-card class="note">
-      <router-link v-if="!editMode" to="/" class="link"></router-link>
+      <router-link v-if="!editMode" to="/note" class="link"></router-link>
         <v-card-media
           class="white--text"
           height="200px"
@@ -258,6 +260,10 @@ export default{
     }
   },
   methods: {
+    whatText (event) {
+      console.log(event.target)
+      console.log(window.getSelection().toString())
+    },
     createNote () {
       if (this.$refs.form.validate()) {
         const note = {
@@ -332,6 +338,9 @@ export default{
     this.date()
   },
   created () {
+    for (var i = 0; i < 50; i++) {
+      this.notes.push(i)
+    }
     this.date()
     this.windowHeight = document.documentElement.clientHeight
     this.windowHeightMax = this.windowHeight * 0.9

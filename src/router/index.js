@@ -4,6 +4,7 @@ import authGuard from './authGuard'
 import redirection from './redirection'
 import AppHome from '../components/Home.vue'
 import AppNotes from '../components/notes.vue'
+import AppNote from '../components/note.vue'
 
 Vue.use(Router)
 
@@ -19,6 +20,13 @@ export default new Router({
       path: '/notes',
       name: 'Notes',
       component: AppNotes,
+      requiresAuth: true,
+      beforeEnter: authGuard
+    },
+    {
+      path: '/note',
+      name: 'Note',
+      component: AppNote,
       requiresAuth: true,
       beforeEnter: authGuard
     }
