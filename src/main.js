@@ -39,6 +39,7 @@ fb.auth().onAuthStateChanged(user => {
       created () {
         if (user) {
           this.$store.dispatch('autoLoginUser', user)
+          this.$store.dispatch('fetchNotes', user)
         }
       }
     })

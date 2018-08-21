@@ -60,6 +60,9 @@ export default{
   computed: {
     loading () {
       return this.$store.getters.loading
+    },
+    user () {
+      return this.$store.getters.user
     }
   },
   methods: {

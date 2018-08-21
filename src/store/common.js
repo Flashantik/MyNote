@@ -1,7 +1,8 @@
 export default {
   state: {
     loading: false,
-    error: null
+    error: null,
+    messageToClient: null
   },
   mutations: {
     setLoading (state, payload) {
@@ -12,6 +13,12 @@ export default {
     },
     clearError (state) {
       state.error = null
+    },
+    setMessageToClient (state, payload) {
+      state.messageToClient = payload
+    },
+    clearMessageToClient (state) {
+      state.messageToClient = null
     }
   },
   actions: {
@@ -23,6 +30,15 @@ export default {
     },
     clearError ({commit}) {
       commit('clearError')
+    },
+    setMessageToClient ({commit}, payload) {
+      commit('clearMessageToClient')
+      setTimeout(function () {
+        commit('setMessageToClient', payload)
+      }, 100)
+    },
+    clearMessageToClient ({commit}) {
+      commit('clearMessageToClient')
     }
   },
   getters: {
@@ -31,6 +47,9 @@ export default {
     },
     error (state) {
       return state.error
+    },
+    messageToClient (state) {
+      return state.messageToClient
     }
   }
 }

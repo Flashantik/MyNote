@@ -1,13 +1,14 @@
 import * as fb from 'firebase'
 
 class Note {
-  constructor (notesName, notesDiscription, noteRatio, noteNotification, noteDate, imageSrc = '') {
+  constructor (notesName, notesDiscription, noteRatio, noteNotification, noteDate, imageSrc = '', id = '') {
     this.notesName = notesName
     this.notesDiscription = notesDiscription
     this.noteRatio = noteRatio
     this.noteNotification = noteNotification
     this.noteDate = noteDate
     this.imageSrc = imageSrc
+    this.id = id
   }
 }
 
@@ -36,16 +37,16 @@ export default {
           payload.noteDate,
           ''
         )
-        const note = await fb.database().ref('notes').push(newNote)
+        const note = await fb.database().ref(`user/${payload.uid}/notesList`).push(newNote)
         if (payload.image != null) {
           const image = payload.image
           const imgExt = image.name.slice(image.name.lastIndexOf('.'))
-          const fileData = await fb.storage().ref(`notes/${note.key}${imgExt}`).put(image)
+          const fileData = await fb.storage().ref(`notes/${payload.uid}/avatar/${note.key}${imgExt}`).put(image)
           let imageSrc = null
           await fileData.ref.getDownloadURL().then(function (downloadUrl) {
             imageSrc = downloadUrl
           })
-          await fb.database().ref('notes').child(note.key).update({
+          await fb.database().ref(`user/${payload.uid}/notesList/${note.key}`).update({
             imageSrc
           })
           commit('createNote', {
@@ -63,27 +64,27 @@ export default {
         throw error
       }
     },
-    async fetchNotes ({commit}) {
+    async fetchNotes ({commit}, payload) {
       commit('clearError')
       commit('setLoading', true)
       const resultNotes = []
       try {
-        const fbVal = await fb.database().ref('notes').once('value')
+        const fbVal = await fb.database().ref(`user/${payload.uid}/notesList`).once('value')
+        // await fb.database().ref(`users`).orderByChild('uid').equalTo(payload.uid).on('value', function (snapshot) {
         const notes = fbVal.val()
         Object.keys(notes).forEach(key => {
           const note = notes[key]
           resultNotes.push(
             new Note(
-              note.title,
-              note.description,
-              note.fullDiscription,
-              note.price,
-              note.imageSrc,
-              key
+              note.notesName,
+              note.notesDiscription,
+              note.noteRatio,
+              note.noteNotification,
+              note.noteDate,
+              note.imageSrc
             )
           )
         })
-        console.log(resultNotes[0])
         commit('loadNotes', resultNotes)
         commit('setLoading', false)
       } catch (error) {

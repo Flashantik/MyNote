@@ -91,10 +91,13 @@ export default{
       this.qlZoomValue = this.sliderValue
     }
   },
+  created () {
+    // document.title = 'Hello World'
+  },
   mounted () {
-    this.ql = document.getElementsByClassName('quill-editor')[0].style
+    this.ql = document.getElementsByClassName('ql-editor')[0].style
     this.html = document.getElementsByTagName('html')[0].style
-    this.ql.transform = 'scale(1)'
+    // this.ql.transform = 'scale(1)'
   }
 }
 </script>

@@ -55,7 +55,9 @@
       <v-toolbar-side-icon
       class="hidden-md-and-up" 
       @click="drawer = !drawer"></v-toolbar-side-icon>
-      <router-link to="/" tag="span" class="pointer"><v-toolbar-title>MyNote.pro</v-toolbar-title></router-link>
+      <router-link to="/" tag="span" class="pointer">
+      <v-toolbar-title>MyNote.pro</v-toolbar-title>
+      </router-link>
      <v-spacer></v-spacer>
       <v-toolbar-items class="hidden-sm-and-down">
         <v-btn flat @click="onLogout"> 
@@ -86,6 +88,21 @@
       </v-btn>
     </v-snackbar>
     </template>
+  <template v-if="messageToClient">
+      <v-snackbar
+      :timeout="5000"
+      :bottom="true"
+      :right="true"
+      :multi-line="true"
+      @input="closeMessage"
+      :value="true"
+      :color="messageToClient.type"
+    >
+    {{messageToClient.message}}
+      <v-btn flat light  @click.native="closeMessage">Закрыть 
+      </v-btn>
+    </v-snackbar>
+    </template>
   </v-app>
 </template>
 
@@ -101,18 +118,21 @@ export default {
   computed: {
     error () {
       return this.$store.getters.error
+    },
+    messageToClient () {
+      return this.$store.getters.messageToClient
     }
   },
   methods: {
     closeError () {
       this.$store.dispatch('clearError')
     },
+    closeMessage (){
+      this.$store.dispatch('clearMessageToClient')
+    },
     onLogout () {
       this.$store.dispatch('logout')
       this.$router.push('/')
-    },
-    resized () {
-      console.log(1)
     }
   }
 }
@@ -121,5 +141,8 @@ export default {
 <style>
 .header{
   z-index: 3;
+}
+.pointer{
+  cursor: pointer;
 }
 </style>
