@@ -9,10 +9,12 @@ import store from './store'
 import Grid from 'vue-js-grid'
 import * as fb from 'firebase'
 import './other/style.css'
+import AppLoader from './components/loader.vue'
 
 Vue.use(Grid)
 Vue.use(Vuetify)
 
+Vue.component('appLoader', AppLoader)
 Vue.config.productionTip = false
 
 let app

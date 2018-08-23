@@ -4,6 +4,6 @@ export default function (to, from, next) {
   if (fb.auth().currentUser) {
     next('/notes')
   } else {
-    next('/')
+    // next('')
   }
 }

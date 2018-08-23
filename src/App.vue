@@ -27,7 +27,6 @@
           </v-list-tile-action>
         </v-list-tile>
       </v-list>
-
       <v-list class="pt-0" dense>
         <v-divider light></v-divider>
         <v-list-tile>
@@ -38,7 +37,6 @@
             <v-list-tile-title>Регистрация</v-list-tile-title>
           </v-list-tile-content>
         </v-list-tile>
-
         <v-list-tile>
           <v-list-tile-action>
             <v-icon>face</v-icon>
@@ -49,8 +47,6 @@
         </v-list-tile>
       </v-list>
     </v-navigation-drawer>
-    
-    
     <v-toolbar  relative app dark class="header">
       <v-toolbar-side-icon
       class="hidden-md-and-up" 
@@ -87,7 +83,7 @@
       <v-btn flat light color="red" @click.native="closeError">Закрыть 
       </v-btn>
     </v-snackbar>
-    </template>
+  </template>
   <template v-if="messageToClient">
       <v-snackbar
       :timeout="5000"
@@ -127,7 +123,7 @@ export default {
     closeError () {
       this.$store.dispatch('clearError')
     },
-    closeMessage (){
+    closeMessage () {
       this.$store.dispatch('clearMessageToClient')
     },
     onLogout () {
