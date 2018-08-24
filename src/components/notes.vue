@@ -20,8 +20,6 @@
           <v-btn color="error" dark v-if="editMode" @click="dialog2 = true">
             Удалить записку
           </v-btn>
-          
-          
           <v-dialog v-model="dialog2" max-width="500px">
         <v-card>
           <v-card-title style="text-align:center; display:block;">
@@ -196,6 +194,7 @@
           :src="props.item.imageSrc ? props.item.imageSrc :'http://via.placeholder.com/350x150'"
         >
         <transition name="fade">
+          {{notesVuex}}
         <v-speed-dial
       :top="true"
       :bottom="false"
@@ -204,7 +203,7 @@
       direction="bottom"
       :open-on-hover="true"
       transition="slide-x-reverse-transition"
-      v-if='props.item.noteRatio.length != 0 && editMode == false'
+      v-if='props.item.noteRatio.length != 0 && editMode == false && props.item.noteRatio'
     >
       <v-btn 
         slot="activator"
@@ -359,8 +358,6 @@
         this.editMode = !this.editMode
       },
       clearImage () {
-        // this.$store.dispatch('setMessageToClient', {message: 'Изображение удалено', type: 'green'})
-        // this.$store.dispatch('deleteImage', {image: this.imageSrc, id: this.id})
         this.delImage = this.imageSrc
         this.image = null
         this.imageSrc = ''
@@ -469,21 +466,22 @@
           day: 'numeric'
         })
         this.dataTimeNow = date.substring(0, date.length - 3)
+      },
+      getWindowHeight () {
+        let x = document.getElementById('contain').clientWidth
+        if ((x / 289.5).toFixed(2) - this.notesVuex.length > 1) {
+          this.windowWidth = false
+        } else {
+          this.windowWidth = true
+        }
+        this.windowHeight = document.documentElement.clientHeight
+        this.windowHeightMax = this.windowHeight * 0.9
+        this.windowHeightMin = this.windowHeight * 0.1
       }
     },
     beforeMount () {
       this.$nextTick(() => {
-        window.addEventListener('resize', getWindowHeight => {
-          let x = document.getElementById('contain').clientWidth
-          if ((x / 289.5).toFixed(2) - this.notesVuex.length > 1) {
-            this.windowWidth = false
-          } else {
-            this.windowWidth = true
-          }
-          this.windowHeight = document.documentElement.clientHeight
-          this.windowHeightMax = this.windowHeight * 0.9
-          this.windowHeightMin = this.windowHeight * 0.1
-        })
+        window.addEventListener('resize', this.getWindowHeight)
       })
     },
     beforeUpdate () {
@@ -496,11 +494,13 @@
       this.windowHeightMin = this.windowHeight * 0.1
     },
     mounted () {
-      let x = document.getElementById('contain').clientWidth
-      if ((x / 289.5).toFixed(2) - this.notesVuex.length > 1) {
-        this.windowWidth = false
-      } else {
-        this.windowWidth = true
+      if (document.getElementById('contain')) {
+        let x = document.getElementById('contain').clientWidth
+        if ((x / 289.5).toFixed(2) - this.notesVuex.length > 1) {
+          this.windowWidth = false
+        } else {
+          this.windowWidth = true
+        }
       }
       let kyda = false
       let note = document.getElementsByClassName('note')

@@ -98,7 +98,6 @@ export default {
       commit('clearError')
       commit('setLoading', true)
       try {
-        console.log(payload.uid)
         // let userOpt
         // await fb.database().ref(`users`).orderByChild('uid').equalTo(payload.uid).on('value', function (snapshot) {
         //   let thatUser = snapshot.val()
@@ -123,8 +122,8 @@ export default {
         throw error
       }
     },
-    logout ({commit}) {
-      fb.auth().signOut()
+    async logout ({commit}) {
+      await fb.auth().signOut()
       commit('setUser', null)
     }
   },

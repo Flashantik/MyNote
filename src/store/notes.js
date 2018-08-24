@@ -1,7 +1,7 @@
 import * as fb from 'firebase'
 
 class Note {
-  constructor (notesName, notesDiscription, noteRatio, noteNotification, noteDate, imageSrc, id = '') {
+  constructor (notesName, notesDiscription, noteRatio = [], noteNotification, noteDate, imageSrc, id = '') {
     this.notesName = notesName
     this.notesDiscription = notesDiscription
     this.noteRatio = noteRatio
@@ -44,7 +44,7 @@ export default {
           ''
         )
         const note = await fb.database().ref(`user/${payload.uid}/notesList`).push(newNote)
-        await fb.database().ref(`user/${payload.uid}/notesList/${note.key}`).update({uid: note.key})
+        await fb.database().ref(`user/${payload.uid}/notesList/${note.key}`).update({id: note.key})
         if (payload.image != null) {
           const image = payload.image
           const imgExt = image.name.slice(image.name.lastIndexOf('.'))
@@ -156,22 +156,26 @@ export default {
       try {
         const fbVal = await fb.database().ref(`user/${payload.uid}/notesList`).once('value')
         // await fb.database().ref(`users`).orderByChild('uid').equalTo(payload.uid).on('value', function (snapshot) {
-        const notes = fbVal.val()
-        Object.keys(notes).forEach(key => {
-          const note = notes[key]
-          resultNotes.push(
-            new Note(
-              note.notesName,
-              note.notesDiscription,
-              note.noteRatio,
-              note.noteNotification,
-              note.noteDate,
-              note.imageSrc,
-              note.id
+        if (fbVal.val()) {
+          const notes = fbVal.val()
+          Object.keys(notes).forEach(key => {
+            const note = notes[key]
+            resultNotes.push(
+              new Note(
+                note.notesName,
+                note.notesDiscription,
+                note.noteRatio,
+                note.noteNotification,
+                note.noteDate,
+                note.imageSrc,
+                note.id
+              )
             )
-          )
-        })
-        commit('loadNotes', resultNotes)
+          })
+          commit('loadNotes', resultNotes)
+        } else {
+          commit('setMessageToClient', {message: 'У вас еще нет ни одной записки', type: 'error'})
+        }
         commit('setLoading', false)
       } catch (error) {
         commit('setError', error.message)

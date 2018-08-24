@@ -11,7 +11,7 @@ Vue.use(Router)
 export default new Router({
   routes: [
     {
-      path: '*',
+      path: '/',
       name: 'Home',
       component: AppHome,
       beforeEnter: redirection
@@ -29,6 +29,10 @@ export default new Router({
       component: AppNote,
       requiresAuth: true,
       beforeEnter: authGuard
+    },
+    {
+      path: '*',
+      redirect: '/'
     }
     // {
     //   path: '/',

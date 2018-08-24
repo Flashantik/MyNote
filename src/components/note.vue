@@ -55,7 +55,8 @@ export default{
       this.content = html
     },
     zoomed (e, target) {
-      let movedTo = +(e.deltaY / 7000).toFixed(2)
+      let perem = e.deltaY * -1
+      let movedTo = +(perem / 7000).toFixed(2)
       let i = 0
       this.qlZoomValue < 0.16 ? this.qlZoomValue = 0.16 : this.qlZoomValue = this.qlZoomValue
       this.qlZoomValue > 9 ? this.qlZoomValue = 9 : this.qlZoomValue = this.qlZoomValue

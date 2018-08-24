@@ -56,19 +56,17 @@
       </router-link>
      <v-spacer></v-spacer>
       <v-toolbar-items class="hidden-sm-and-down">
-        <v-btn flat @click="onLogout"> 
-          <v-icon left>face</v-icon>
-         Выйти из аккаунта</v-btn>
-        <v-btn flat> 
-          <v-icon left>face</v-icon>
-         Регистрация</v-btn>
-        <v-btn flat> 
-          <v-icon left>face</v-icon>
-         О сайте</v-btn>
-      </v-toolbar-items>
+      <v-btn flat 
+        v-for="(item,index) in items" 
+        :key="index"
+        :to="item.url"
+        @click="item.methods ? item.methods() : {}">
+          <v-icon left>{{item.icon}}</v-icon>
+         {{item.title}}</v-btn>
+         </v-toolbar-items>
     </v-toolbar>
   <v-content>
-    <router-view></router-view>
+    <router-view :registration="registration"></router-view>
   </v-content>
   <template v-if="error">
       <v-snackbar
@@ -107,7 +105,8 @@ export default {
   data () {
     return {
       drawer: false,
-      mini: false
+      mini: false,
+      registration: false
     }
   },
   name: 'App',
@@ -117,6 +116,19 @@ export default {
     },
     messageToClient () {
       return this.$store.getters.messageToClient
+    },
+    userlogged () {
+      return this.$store.getters.userlogged
+    },
+    items () {
+      if (this.userlogged) {
+        return [
+        { title: 'Выйти из аккаунта', icon: 'exit_to_app', url: '/', methods: this.onLogout },
+        { title: 'К запискам', icon: 'monetization_on', url: '/notes', methods: '' }]
+      } else {
+        return [ { title: this.registration === true ? 'Авторизация' : 'Регистрация', icon: 'dashboard', methods: () => { this.registration = !this.registration } },
+        { title: 'О сайте', icon: 'monetization_on' }]
+      }
     }
   },
   methods: {
@@ -127,18 +139,33 @@ export default {
       this.$store.dispatch('clearMessageToClient')
     },
     onLogout () {
-      this.$store.dispatch('logout')
-      this.$router.push('/')
+      this.$store.dispatch('logout').then(
+        () => {
+          this.$router.push('/')
+        }
+      )
     }
   }
 }
 </script>
 
+
 <style>
+.v-btn:hover{
+  border-bottom: 2.3px solid white;
+}
 .header{
   z-index: 3;
 }
 .pointer{
   cursor: pointer;
+}
+.v-btn--active{
+  cursor: default !important;
+  border-bottom: 3px solid rgb(25, 118, 210);
+}
+
+.v-btn--active:hover{
+border-bottom: 3px solid rgb(25, 118, 210);
 }
 </style>

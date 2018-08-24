@@ -38,10 +38,10 @@ fb.auth().onAuthStateChanged(user => {
       router,
       components: { App },
       template: '<App/>',
-      created () {
+      async created () {
         if (user) {
-          this.$store.dispatch('autoLoginUser', user)
-          this.$store.dispatch('fetchNotes', user)
+          await this.$store.dispatch('autoLoginUser', user)
+          await this.$store.dispatch('fetchNotes', user)
         }
       }
     })
