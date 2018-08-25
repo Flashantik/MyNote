@@ -1,19 +1,23 @@
 import * as fb from 'firebase'
 
-// class User {
-//   constructor (uid = '', nickname = '', tel = '', DOB = '', skills = [], myCountry = '', avatarSrc = '', email = '', balans = '', ads = []) {
-//     this.uid = uid
-//     this.nickname = nickname
-//     this.tel = tel
-//     this.DOB = DOB
-//     this.skills = skills
-//     this.myCountry = myCountry
-//     this.avatarSrc = avatarSrc
-//     this.balans = balans
-//     this.ads = ads
-//     this.email = email
-//   }
-// }
+class User {
+  constructor (tel = '', DOB = '', myCountry = '') {
+    this.tel = tel
+    this.DOB = DOB
+    this.myCountry = myCountry
+  }
+}
+
+class FullUser {
+  constructor (tel = '', DOB = '', myCountry = '', avatarSrc, uid, nickname) {
+    this.tel = tel
+    this.DOB = DOB
+    this.myCountry = myCountry
+    this.avatarSrc = avatarSrc
+    this.uid = uid
+    this.nickname = nickname
+  }
+}
 
 export default {
   state: {
@@ -33,28 +37,28 @@ export default {
       commit('setLoading', true)
       try {
         const user = await fb.auth().createUserWithEmailAndPassword(payload.email, payload.password)
-        // const image = payload.avatar
-        // const imgExt = image.name.slice(image.name.lastIndexOf('.'))
-        // const fileData = await fb.storage().ref(`usersAvatar/${user.user.uid}${imgExt}`).put(image)
-        // let avatarSrc = null
-        // await fileData.ref.getDownloadURL().then(function (downloadUrl) {
-        //   avatarSrc = downloadUrl
-        // })
+        const image = payload.avatar
+        const imgExt = image.name.slice(image.name.lastIndexOf('.'))
+        const fileData = await fb.storage().ref(`usersAvatar/${user.user.uid}/${user.user.uid}${imgExt}`).put(image)
+        let avatarSrc = null
+        await fileData.ref.getDownloadURL().then(function (downloadUrl) {
+          avatarSrc = downloadUrl
+        })
+        fb.auth().currentUser.updateProfile({
+          displayName: payload.nickname,
+          photoURL: avatarSrc
+        })
 
-        // const userOpt = new User(
-        //   user.user.uid,
-        //   payload.nickname,
-        //   payload.tel,
-        //   payload.DOB,
-        //   payload.skills,
-        //   payload.myCountry,
-        //   avatarSrc,
-        //   payload.email
-        // )
-
-        // await fb.database().ref(`users`).child(user.user.uid).set(userOpt)
-        // commit('setUser', userOpt)
-        commit('setUser', user.uid)
+        const userOpt = new User(
+          payload.tel,
+          payload.DOB,
+          payload.myCountry
+        )
+        await fb.database().ref(`user`).child(user.user.uid).set(userOpt)
+        userOpt.avatarSrc = avatarSrc
+        userOpt.uid = user.user.uid
+        userOpt.nickname = payload.nickname
+        commit('setUser', userOpt)
         commit('setLoading', false)
       } catch (error) {
         commit('setLoading', false)
@@ -67,26 +71,7 @@ export default {
       commit('clearError')
       commit('setLoading', true)
       try {
-        const user = await fb.auth().signInWithEmailAndPassword(email, password)
-        // let userOpt
-        // await fb.database().ref(`users`).orderByChild('uid').equalTo(user.user.uid).on('value', function (snapshot) {
-        //   let thatUser = snapshot.val()
-        //   userOpt = new User(
-        //     thatUser[user.user.uid].uid,
-        //     thatUser[user.user.uid].nickname,
-        //     thatUser[user.user.uid].tel,
-        //     thatUser[user.user.uid].DOB,
-        //     thatUser[user.user.uid].skills,
-        //     thatUser[user.user.uid].myCountry,
-        //     thatUser[user.user.uid].avatarSrc,
-        //     email,
-        //     null,
-        //     thatUser[user.user.uid].ads
-        //   )
-        //   commit('setUser', userOpt)
-        //   commit('setLoading', false)
-        // })
-        commit('setUser', user.uid)
+        await fb.auth().signInWithEmailAndPassword(email, password)
         commit('setLoading', false)
       } catch (error) {
         commit('setLoading', false)
@@ -94,32 +79,38 @@ export default {
         throw error
       }
     },
-    async autoLoginUser ({commit}, payload) {
-      commit('clearError')
-      commit('setLoading', true)
-      try {
-        // let userOpt
-        // await fb.database().ref(`users`).orderByChild('uid').equalTo(payload.uid).on('value', function (snapshot) {
-        //   let thatUser = snapshot.val()
-        //   userOpt = new User(
-        //     thatUser[payload.uid].uid,
-        //     thatUser[payload.uid].nickname,
-        //     thatUser[payload.uid].tel,
-        //     thatUser[payload.uid].DOB,
-        //     thatUser[payload.uid].skills,
-        //     thatUser[payload.uid].myCountry,
-        //     thatUser[payload.uid].avatarSrc,
-        //     payload.email
-        //   )
-        //   commit('setUser', userOpt)
-        //   commit('setLoading', false)
-        // })
-        commit('setUser', payload.uid)
-        commit('setLoading', false)
-      } catch (error) {
-        commit('setLoading', false)
-        commit('setError', error.message)
-        throw error
+    async autoLoginUser ({commit, dispatch}, payload) {
+      console.log('autologining')
+      if (!this.state.user.user) {
+        commit('clearError')
+        commit('setLoading', true)
+        commit('setUser', !null)
+        try {
+          let userOpt
+          let user = fb.auth().currentUser
+          fb.database().ref(`user/${payload.uid}`).once('value')
+          .then(function (snapshot) {
+            let thatUser = snapshot.val()
+            userOpt = new FullUser(
+              thatUser.tel,
+              thatUser.DOB,
+              thatUser.myCountry,
+              user.photoURL,
+              user.uid,
+              user.displayName
+            )
+            console.log(userOpt)
+            commit('setUser', userOpt)
+            commit('setLoading', false)
+            if (thatUser.notesList) {
+              dispatch('fetchNotes', thatUser.notesList)
+            }
+          })
+        } catch (error) {
+          commit('setLoading', false)
+          commit('setError', error.message)
+          throw error
+        }
       }
     },
     async logout ({commit}) {

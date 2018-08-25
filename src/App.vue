@@ -29,22 +29,29 @@
       </v-list>
       <v-list class="pt-0" dense>
         <v-divider light></v-divider>
-        <v-list-tile>
+<!--         
+        <v-btn flat 
+        v-for="(item,index) in items" 
+        :key="index"
+        :to="item.url"
+        @click="item.methods ? item.methods() : {}"
+        class="btn-header">
+          <v-icon left>{{item.icon}}</v-icon>
+         {{item.title}}</v-btn> -->
+
+        <v-list-tile
+        v-for="(item,index) in items" 
+        :key="index"
+        :to="item.url"
+        @click="item.methods ? item.methods() : {}">
           <v-list-tile-action>
-            <v-icon>face</v-icon>
+            <v-icon>{{item.icon}}</v-icon>
           </v-list-tile-action>
           <v-list-tile-content>
-            <v-list-tile-title>Регистрация</v-list-tile-title>
+            <v-list-tile-title>{{item.title}}</v-list-tile-title>
           </v-list-tile-content>
         </v-list-tile>
-        <v-list-tile>
-          <v-list-tile-action>
-            <v-icon>face</v-icon>
-          </v-list-tile-action>
-          <v-list-tile-content>
-            <v-list-tile-title>О сайте</v-list-tile-title>
-          </v-list-tile-content>
-        </v-list-tile>
+
       </v-list>
     </v-navigation-drawer>
     <v-toolbar  relative app dark class="header">
@@ -60,9 +67,14 @@
         v-for="(item,index) in items" 
         :key="index"
         :to="item.url"
-        @click="item.methods ? item.methods() : {}">
+        @click="item.methods ? item.methods() : {}"
+        class="btn-header">
           <v-icon left>{{item.icon}}</v-icon>
          {{item.title}}</v-btn>
+      <v-btn flat 
+        class="btn-header"
+        @click="onLogout">
+         Выйти сука</v-btn>
          </v-toolbar-items>
     </v-toolbar>
   <v-content>
@@ -126,7 +138,7 @@ export default {
         { title: 'Выйти из аккаунта', icon: 'exit_to_app', url: '/', methods: this.onLogout },
         { title: 'К запискам', icon: 'monetization_on', url: '/notes', methods: '' }]
       } else {
-        return [ { title: this.registration === true ? 'Авторизация' : 'Регистрация', icon: 'dashboard', methods: () => { this.registration = !this.registration } },
+        return [ { title: this.registration === true ? 'Авторизация' : 'Регистрация', icon: this.registration === true ? 'fa-sign-in-alt' : 'fa-user-plus', methods: () => { this.registration = !this.registration } },
         { title: 'О сайте', icon: 'monetization_on' }]
       }
     }
@@ -151,7 +163,7 @@ export default {
 
 
 <style>
-.v-btn:hover{
+.btn-header:hover{
   border-bottom: 2.3px solid white;
 }
 .header{

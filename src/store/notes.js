@@ -35,6 +35,7 @@ export default {
       commit('clearError')
       commit('setLoading', true)
       try {
+        console.log(payload)
         const newNote = new Note(
           payload.notesName,
           payload.notesDiscription,
@@ -149,15 +150,47 @@ export default {
         throw error
       }
     },
+    // async fetchNotes ({commit}, payload) {
+    //   commit('clearError')
+    //   commit('setLoading', true)
+    //   const resultNotes = []
+    //   try {
+    //     const fbVal = await fb.database().ref(`user/${payload.uid}/notesList`).once('value')
+    //     // await fb.database().ref(`users`).orderByChild('uid').equalTo(payload.uid).on('value', function (snapshot) {
+    //     if (fbVal.val()) {
+    //       const notes = fbVal.val()
+    //       Object.keys(notes).forEach(key => {
+    //         const note = notes[key]
+    //         resultNotes.push(
+    //           new Note(
+    //             note.notesName,
+    //             note.notesDiscription,
+    //             note.noteRatio,
+    //             note.noteNotification,
+    //             note.noteDate,
+    //             note.imageSrc,
+    //             note.id
+    //           )
+    //         )
+    //       })
+    //       commit('loadNotes', resultNotes)
+    //     } else {
+    //       commit('setMessageToClient', {message: 'У вас еще нет ни одной записки', type: 'error'})
+    //     }
+    //     commit('setLoading', false)
+    //   } catch (error) {
+    //     commit('setError', error.message)
+    //     commit('setLoading', false)
+    //     throw error
+    //   }
+    // },
     async fetchNotes ({commit}, payload) {
       commit('clearError')
       commit('setLoading', true)
       const resultNotes = []
       try {
-        const fbVal = await fb.database().ref(`user/${payload.uid}/notesList`).once('value')
-        // await fb.database().ref(`users`).orderByChild('uid').equalTo(payload.uid).on('value', function (snapshot) {
-        if (fbVal.val()) {
-          const notes = fbVal.val()
+        if (payload) {
+          const notes = payload
           Object.keys(notes).forEach(key => {
             const note = notes[key]
             resultNotes.push(

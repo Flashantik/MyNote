@@ -5,6 +5,12 @@
   }
 }
 
+.v-text-field__slot> label {
+  cursor: text;
+}
+.v-toolbar__content> .v-toolbar__title{
+cursor: default;
+}
 /* .v-grid-item-wrapper{
 margin: 
 } */

@@ -12,8 +12,8 @@ import './other/style.css'
 import AppLoader from './components/loader.vue'
 
 Vue.use(Grid)
-Vue.use(Vuetify)
 
+Vue.use(Vuetify)
 Vue.component('appLoader', AppLoader)
 Vue.config.productionTip = false
 
@@ -41,7 +41,7 @@ fb.auth().onAuthStateChanged(user => {
       async created () {
         if (user) {
           await this.$store.dispatch('autoLoginUser', user)
-          await this.$store.dispatch('fetchNotes', user)
+          // await this.$store.dispatch('fetchNotes', user)
         }
       }
     })

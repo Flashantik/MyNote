@@ -371,7 +371,7 @@
             noteNotification: this.noteNotification,
             image: this.image,
             noteDate: this.dataTimeNow,
-            uid: this.user
+            uid: this.user.uid
           }
           this.$store.dispatch('createNote', note).then(() => {
             this.dialog = false
@@ -393,7 +393,7 @@
             noteNotification: this.noteNotification,
             image: this.image,
             noteDate: this.dateNote,
-            uid: this.user,
+            uid: this.user.uid,
             id: this.id,
             index: this.index,
             imageSrc: this.delImage
