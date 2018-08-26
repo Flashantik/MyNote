@@ -10,11 +10,13 @@ import Grid from 'vue-js-grid'
 import * as fb from 'firebase'
 import './other/style.css'
 import AppLoader from './components/loader.vue'
+import AppBs from './components/beatifulScreen.vue'
 
 Vue.use(Grid)
 
 Vue.use(Vuetify)
 Vue.component('appLoader', AppLoader)
+Vue.component('appBs', AppBs)
 Vue.config.productionTip = false
 
 let app

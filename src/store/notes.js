@@ -142,7 +142,7 @@ export default {
         if (payload.imageSrc) {
           dispatch('deleteImage', {image: payload.imageSrc})
         }
-        await fb.database().ref(`user/${this.state.user.user}/notesList/${payload.id}`).remove()
+        await fb.database().ref(`user/${this.state.user.user.uid}/notesList/${payload.id}`).remove()
         commit('setLoading', false)
       } catch (error) {
         commit('setError', error.message)
@@ -189,26 +189,22 @@ export default {
       commit('setLoading', true)
       const resultNotes = []
       try {
-        if (payload) {
-          const notes = payload
-          Object.keys(notes).forEach(key => {
-            const note = notes[key]
-            resultNotes.push(
-              new Note(
-                note.notesName,
-                note.notesDiscription,
-                note.noteRatio,
-                note.noteNotification,
-                note.noteDate,
-                note.imageSrc,
-                note.id
-              )
+        const notes = payload
+        Object.keys(notes).forEach(key => {
+          const note = notes[key]
+          resultNotes.push(
+            new Note(
+              note.notesName,
+              note.notesDiscription,
+              note.noteRatio,
+              note.noteNotification,
+              note.noteDate,
+              note.imageSrc,
+              note.id
             )
-          })
-          commit('loadNotes', resultNotes)
-        } else {
-          commit('setMessageToClient', {message: 'У вас еще нет ни одной записки', type: 'error'})
-        }
+          )
+        })
+        commit('loadNotes', resultNotes)
         commit('setLoading', false)
       } catch (error) {
         commit('setError', error.message)

@@ -33,7 +33,7 @@ export default{
   0% {
     -webkit-transform: rotate(0deg);
             transform: rotate(0deg);
-    border-top-color: rgba(0, 0, 0, 0.5);
+    border-top-color: white;
   }
   50% {
     -webkit-transform: rotate(180deg);
@@ -43,7 +43,7 @@ export default{
   100% {
     -webkit-transform: rotate(360deg);
             transform: rotate(360deg);
-    border-top-color: rgba(0, 0, 0, 0.5);
+    border-top-color: white;
   }
 }
  *{
@@ -51,7 +51,6 @@ export default{
  }
 .loader {
   position: relative;
-  margin: 75px auto;
   width: 150px;
   height: 150px;
   display: block;

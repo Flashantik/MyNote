@@ -165,7 +165,7 @@
   <v-layout>
     <v-btn color="primary" @click="dialog=true" v-show="!editMode">Добавить Notes</v-btn>
     <v-btn :color="!editMode ? 'error' : 'black'" :outline="!editMode ? false : true" @click="settingsMode" >
-      {{editMode == false ? 'Изменить состояние': ''}} 
+      {{editMode == false ? 'Редактировать карточки': ''}}
         <v-icon v-if="editMode == true" class="gear">
           settings
         </v-icon>
@@ -179,14 +179,15 @@
     :sortable="editMode" 
     :items="notesVuex" 
     :width="100" 
-    :cellWidth="289.5" 
+    :cellWidth="289.5"
     :cellHeight="400"
     @dragend="sortNotes" 
     @dragstart="pressed"
     style="margin-top:25px"
+    v-if="notesVuex"
     >
       <template slot="cell" slot-scope="props">
-        <v-card class="mycard" :style="editMode == true ? 'cursor:move;' : ''">
+        <v-card class="mycard" :class="pushed ? 'grabbable' : ''" :style="pushed ? 'cursor:move; cursor:grabbing' : 'cursor:grab' ">
            <router-link v-if="!editMode" to="/note" class="link"></router-link>
         <v-card-media 
           class="white--text"
@@ -288,7 +289,6 @@
       return {
         notesName: '',
         notesDiscription: '',
-        noteRatioList: [],
         noteRatio: [],
         noteNotification: false,
         dateNote: '',
@@ -317,6 +317,17 @@
       }
     },
     computed: {
+      noteRatioList () {
+        if (this.notesVuex) {
+          let mas = []
+          this.notesVuex.forEach(val => {
+            val.noteRatio.forEach(value => {
+              mas.push(value)
+            })
+          })
+          return mas
+        }
+      },
       loading () {
         return this.$store.getters.loading
       },
@@ -494,45 +505,47 @@
       this.windowHeightMin = this.windowHeight * 0.1
     },
     mounted () {
-      if (document.getElementById('contain')) {
-        let x = document.getElementById('contain').clientWidth
-        if ((x / 289.5).toFixed(2) - this.notesVuex.length > 1) {
-          this.windowWidth = false
-        } else {
-          this.windowWidth = true
+      if (this.notesVuex) {
+        if (document.getElementById('contain')) {
+          let x = document.getElementById('contain').clientWidth
+          if ((x / 289.5).toFixed(2) - this.notesVuex.length > 1) {
+            this.windowWidth = false
+          } else {
+            this.windowWidth = true
+          }
         }
-      }
-      let kyda = false
-      let note = document.getElementsByClassName('note')
-      for (var i = 0; i < note.length; i++) {
-        note[i].addEventListener('touchstart', e => {
-          if (this.editMode) {
-            e.preventDefault()
-            this.pushed = true
-          }
-        }, false)
+        let kyda = false
+        let note = document.getElementsByClassName('note')
+        for (var i = 0; i < note.length; i++) {
+          note[i].addEventListener('touchstart', e => {
+            if (this.editMode) {
+              e.preventDefault()
+              this.pushed = true
+            }
+          }, false)
 
-        note[i].addEventListener('touchmove', e => {
-          if (e.changedTouches[0].clientY >= this.windowHeightMax) {
-            if (kyda === false) {
-              this.getDown(undefined, 15)
+          note[i].addEventListener('touchmove', e => {
+            if (e.changedTouches[0].clientY >= this.windowHeightMax) {
+              if (kyda === false) {
+                this.getDown(undefined, 15)
+              }
+              kyda = true
+            } else if (e.changedTouches[0].clientY <= this.windowHeightMin) {
+              if (kyda === false) {
+                this.getUp(undefined, 15)
+              }
+              kyda = true
+            } else if (kyda === true) {
+              kyda = false
+              this.clearMove()
             }
-            kyda = true
-          } else if (e.changedTouches[0].clientY <= this.windowHeightMin) {
-            if (kyda === false) {
-              this.getUp(undefined, 15)
-            }
-            kyda = true
-          } else if (kyda === true) {
-            kyda = false
-            this.clearMove()
-          }
+          }, false)
+        }
+        document.addEventListener('touchend', () => {
+          this.clearMove()
+          this.pushed = false
         }, false)
       }
-      document.addEventListener('touchend', () => {
-        this.clearMove()
-        this.pushed = false
-      }, false)
     },
     beforeDestroy () {
       window.removeEventListener('resize', this.getWindowHeight)
@@ -725,5 +738,11 @@
   .top_footer:hover .footer {
     opacity: 1;
   }
-
+  .grabbing{
+  cursor: -webkit-grabbing;
+  cursor: -moz-grabbing;
+  cursor: -o-grabbing;
+  cursor: -ms-grabbing;
+  cursor: grabbing;
+}
 </style>

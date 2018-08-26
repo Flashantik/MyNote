@@ -15,10 +15,10 @@
         </v-list-tile>
         <v-list-tile avatar tag="div">
           <v-list-tile-avatar>
-            <img src="http://s1.iconbird.com/ico/0612/GooglePlusInterfaceIcons/w128h1281338911651user.png">
+            <img :src="user && user.avatarSrc ? user.avatarSrc :'http://s1.iconbird.com/ico/0612/GooglePlusInterfaceIcons/w128h1281338911651user.png'">
           </v-list-tile-avatar>
           <v-list-tile-content>
-            <v-list-tile-title>Неизвестный</v-list-tile-title>
+            <v-list-tile-title>{{user && user.nickname ? user.nickname :'Неизвестный'}}</v-list-tile-title>
           </v-list-tile-content>
           <v-list-tile-action>
             <v-btn icon @click.stop="mini = !mini">
@@ -51,7 +51,6 @@
             <v-list-tile-title>{{item.title}}</v-list-tile-title>
           </v-list-tile-content>
         </v-list-tile>
-
       </v-list>
     </v-navigation-drawer>
     <v-toolbar  relative app dark class="header">
@@ -71,10 +70,9 @@
         class="btn-header">
           <v-icon left>{{item.icon}}</v-icon>
          {{item.title}}</v-btn>
-      <v-btn flat 
-        class="btn-header"
-        @click="onLogout">
-         Выйти сука</v-btn>
+         <v-btn @click="$store.dispatch('pushFakeData')">
+           Пробуем ламаць
+         </v-btn>
          </v-toolbar-items>
     </v-toolbar>
   <v-content>
@@ -109,6 +107,7 @@
       </v-btn>
     </v-snackbar>
     </template>
+   <app-bs></app-bs>
   </v-app>
 </template>
 
@@ -141,6 +140,9 @@ export default {
         return [ { title: this.registration === true ? 'Авторизация' : 'Регистрация', icon: this.registration === true ? 'fa-sign-in-alt' : 'fa-user-plus', methods: () => { this.registration = !this.registration } },
         { title: 'О сайте', icon: 'monetization_on' }]
       }
+    },
+    user () {
+      return this.$store.getters.user
     }
   },
   methods: {

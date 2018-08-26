@@ -32,22 +32,35 @@ export default {
     }
   },
   actions: {
+    async pushFakeData () {
+      let newNote = {
+        maxPower: 1,
+        truePower: 4
+      }
+      await fb.database().ref(`user/xHH9c6Py05ayq9lW0Q3yWauA7Bq2`).push(newNote)
+    },
     async registerUser ({commit}, payload) {
       commit('clearError')
       commit('setLoading', true)
       try {
-        const user = await fb.auth().createUserWithEmailAndPassword(payload.email, payload.password)
-        const image = payload.avatar
-        const imgExt = image.name.slice(image.name.lastIndexOf('.'))
-        const fileData = await fb.storage().ref(`usersAvatar/${user.user.uid}/${user.user.uid}${imgExt}`).put(image)
-        let avatarSrc = null
-        await fileData.ref.getDownloadURL().then(function (downloadUrl) {
-          avatarSrc = downloadUrl
-        })
-        fb.auth().currentUser.updateProfile({
+        const user = await fb.auth().createUserWithEmailAndPassword(payload.email, payload.password).then(
+          commit('setUser', !null)
+        )
+        let avatarSrc
+        if (payload.avatar) {
+          const image = payload.avatar
+          const imgExt = image.name.slice(image.name.lastIndexOf('.'))
+          const fileData = await fb.storage().ref(`usersAvatar/${user.user.uid}/${user.user.uid}${imgExt}`).put(image)
+          await fileData.ref.getDownloadURL().then(function (downloadUrl) {
+            avatarSrc = downloadUrl
+          })
+        }
+
+        let profile = {
           displayName: payload.nickname,
           photoURL: avatarSrc
-        })
+        }
+        fb.auth().currentUser.updateProfile(profile)
 
         const userOpt = new User(
           payload.tel,
@@ -80,7 +93,7 @@ export default {
       }
     },
     async autoLoginUser ({commit, dispatch}, payload) {
-      console.log('autologining')
+      console.log(fb.auth().currentUser)
       if (!this.state.user.user) {
         commit('clearError')
         commit('setLoading', true)
@@ -104,6 +117,8 @@ export default {
             commit('setLoading', false)
             if (thatUser.notesList) {
               dispatch('fetchNotes', thatUser.notesList)
+            } else {
+              commit('setMessageToClient', {message: 'У вас еще нет ни одной записки', type: 'error'})
             }
           })
         } catch (error) {
@@ -116,6 +131,7 @@ export default {
     async logout ({commit}) {
       await fb.auth().signOut()
       commit('setUser', null)
+      commit('loadNotes', null)
     }
   },
   getters: {
