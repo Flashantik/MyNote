@@ -14,11 +14,12 @@
       ></v-slider>
   <v-container class="maxHeight">
     <quill-editor
-      class="editor-example bubble"
+      class="editor-example snow"
       ref="myTextEditor"
       :content="content"
       :options="editorOption"
-      @change="onEditorChange($event)">
+      @change="onEditorChange($event)"
+      >
     </quill-editor>
   </v-container>
 </div>
@@ -26,6 +27,7 @@
 
 <script>
 import 'quill/dist/quill.bubble.css'
+import 'quill/dist/quill.snow.css'
 import { quillEditor } from 'vue-quill-editor'
 
 export default{
@@ -35,16 +37,32 @@ export default{
   data () {
     return {
       content: '',
+      beforeContent: '',
       editorOption: {
-        theme: 'bubble',
+        theme: 'snow',
         placeholder: 'Начните писать тут...'
       },
       html: null,
       ql: null,
       qlZoomValue: 1,
-      sliderValue: 1
+      sliderValue: 1,
+      saving: false,
+      counter: 0
       // horizontal: 100
       // vertical: 100
+    }
+  },
+  computed: {
+    noteById () {
+      return this.$store.getters.noteById(this.$router.currentRoute.params['id'])
+    }
+  },
+  watch: {
+    noteById: function () {
+      this.$store.dispatch('fetchText', this.noteById.id).then(() => {
+        this.content = this.$store.getters.noteText
+        this.beforeContent = this.content.length
+      })
     }
   },
   methods: {
@@ -53,6 +71,12 @@ export default{
     },
     onEditorChange ({ quill, html, text }) {
       this.content = html
+      this.counter++
+      if (this.counter > 200 || this.content.length - this.beforeContent > 200 || this.content.length - this.beforeContent < -200) {
+        this.counter = 0
+        this.beforeContent = this.content.length
+        this.$store.dispatch('pushText', {text: this.content, id: this.noteById.id})
+      }
     },
     zoomed (e, target) {
       let perem = e.deltaY * -1
@@ -93,12 +117,23 @@ export default{
     }
   },
   created () {
-    // document.title = 'Hello World'
+    if (this.noteById) {
+      this.$store.dispatch('fetchText', this.noteById.id).then(() => {
+        this.content = this.$store.getters.noteText
+        this.beforeContent = this.content.length
+      })
+    }
   },
   mounted () {
     this.ql = document.getElementsByClassName('ql-editor')[0].style
     this.html = document.getElementsByTagName('html')[0].style
-    // this.ql.transform = 'scale(1)'
+    // this.ql.transform = 'scale(1)
+    // this.$store.dispatch('fetchText')
+  },
+  beforeDestroy () {
+    if (this.content.length !== this.beforeContent) {
+      this.$store.dispatch('pushText', {text: this.content, id: this.noteById.id})
+    }
   }
 }
 </script>

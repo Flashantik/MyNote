@@ -52,7 +52,7 @@
               </v-layout>
               <v-subheader style="color:black">Заголовок записки</v-subheader>
               <v-form v-model="valid" ref="form" validation>
-                <v-text-field label="Название" outline :rules=" [v => !!v || 'Требуется название']" v-model="notesName" required hint="Введите сюда желаемое название записки"></v-text-field>
+                <v-text-field label="Название" outline :rules=" [v => !!v || 'Требуется название']" v-model.trim="notesName" required hint="Введите сюда желаемое название записки"></v-text-field>
                 <v-subheader style="color:black">Краткое описание записки</v-subheader>
               </v-form>
                 <v-textarea label="Описание" hint="Введите сюда краткое описание записки" outline auto-grow rows="2" counter="150" :rules=" [ v => !!v || 'Требуется ввести описание',
@@ -172,7 +172,41 @@
       </v-btn>
       </v-layout>
     <br>
+
+  <!-- <v-flex xs12>
+        <v-card color="cyan darken-2" class="white--text">
+          <v-layout>
+            <v-flex xs5>
+              <v-card-media
+                src="https://cdn.vuetifyjs.com/images/cards/foster.jpg"
+                height="125px"
+                contain
+              ></v-card-media>
+            </v-flex>
+            <v-flex xs7>
+              <v-card-title primary-title>
+                <div>
+                  <div class="headline">Supermodel</div>
+                  <div>Foster the People</div>
+                  <div>(2014)</div>
+                </div>
+              </v-card-title>
+            </v-flex>
+          </v-layout>
+          <v-divider light></v-divider>
+          <v-card-actions class="pa-3">
+            Rate this album
+            <v-spacer></v-spacer>
+            <v-icon>star_border</v-icon>
+            <v-icon>star_border</v-icon>
+            <v-icon>star_border</v-icon>
+            <v-icon>star_border</v-icon>
+            <v-icon>star_border</v-icon>
+          </v-card-actions>
+        </v-card>
+      </v-flex> -->
     <template v-if="!loading">
+      <!-- {{phoneOrient}} -->
     <grid
     :center="windowWidth" 
     :draggable="editMode" 
@@ -188,14 +222,13 @@
     >
       <template slot="cell" slot-scope="props">
         <v-card class="mycard" :class="pushed ? 'grabbable' : ''" :style="pushed ? 'cursor:move; cursor:grabbing' : 'cursor:grab' ">
-           <router-link v-if="!editMode" to="/note" class="link"></router-link>
+           <router-link v-if="!editMode" :to="{path: `${props.item.notesName}`, params: {id: id}}" class="link"></router-link>
         <v-card-media 
           class="white--text"
           height="200px"
           :src="props.item.imageSrc ? props.item.imageSrc :'http://via.placeholder.com/350x150'"
         >
         <transition name="fade">
-          {{notesVuex}}
         <v-speed-dial
       :top="true"
       :bottom="false"
@@ -234,7 +267,6 @@
     >
       <v-icon dark>edit</v-icon>
     </v-btn>
-    
         </transition>
         </v-card-media>
         <v-card-title>
@@ -267,7 +299,7 @@
       </template>
     </grid>
     </template>
-    <app-loader v-else></app-loader>
+    <app-bs></app-bs>
   </v-container>
 </template>
 
@@ -310,6 +342,7 @@
         windowHeightMin: null,
         windowHeightMax: null,
         windowWidth: null,
+        phoneOrient: false,
         valid: false,
         search: null,
         seeCards: false,
@@ -479,15 +512,22 @@
         this.dataTimeNow = date.substring(0, date.length - 3)
       },
       getWindowHeight () {
-        let x = document.getElementById('contain').clientWidth
-        if ((x / 289.5).toFixed(2) - this.notesVuex.length > 1) {
-          this.windowWidth = false
-        } else {
-          this.windowWidth = true
+        if (this.notesVuex) {
+          if (document.getElementById('contain')) {
+            let x = document.getElementById('contain').clientWidth
+            if ((x / 289.5).toFixed(2) - this.notesVuex.length > 1) {
+              this.windowWidth = false
+            } else {
+              this.windowWidth = true
+            }
+            this.windowHeight = document.documentElement.clientHeight
+            this.windowHeightMax = this.windowHeight * 0.9
+            this.windowHeightMin = this.windowHeight * 0.1
+          }
         }
-        this.windowHeight = document.documentElement.clientHeight
-        this.windowHeightMax = this.windowHeight * 0.9
-        this.windowHeightMin = this.windowHeight * 0.1
+        if ((window.innerWidth / window.innerHeight) > 1.5 && window.innerWidth < 1000) {
+          this.phoneOrient = true
+        }
       }
     },
     beforeMount () {
@@ -505,6 +545,9 @@
       this.windowHeightMin = this.windowHeight * 0.1
     },
     mounted () {
+      if ((window.innerWidth / window.innerHeight) > 1.5 && window.innerWidth < 1000) {
+        this.phoneOrient = true
+      }
       if (this.notesVuex) {
         if (document.getElementById('contain')) {
           let x = document.getElementById('contain').clientWidth
@@ -513,6 +556,8 @@
           } else {
             this.windowWidth = true
           }
+          console.log(window.innerWidth)
+          console.log(window.innerHeight)
         }
         let kyda = false
         let note = document.getElementsByClassName('note')
@@ -612,6 +657,7 @@
   .gear{
     animation: rounded 1s linear infinite;
   }
+  
 .eye:hover{
   animation-direction: reverse;
   animation-duration: 1.5s;

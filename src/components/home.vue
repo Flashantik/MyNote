@@ -1,5 +1,6 @@
 <template>
 <v-container fluid fill-height>
+  <app-bs></app-bs>
         <v-layout align-center justify-center style="perspective: 1200px;">
           <v-flex xs12 sm10 md7 lg5>
             <transition name="fade" mode="out-in">
@@ -40,7 +41,9 @@
                 >Войти</v-btn>
               </v-card-actions>
             </v-card>
+
             <v-stepper class="perspective" v-model="step" vertical v-else>
+            {{regist.email}}
               <v-stepper-step :complete="step > 1" step="1">
      Введите свои данные которые потребуются в следующем при входе в ваш аккаунт
       <small>Не валидные E-mail приняты не будут</small>
@@ -57,7 +60,7 @@
                   name="E-mail" 
                   label="E-mail" 
                   type="text"
-                  v-model="regist.email"
+                  v-model.trim="regist.email"
                   :rules="emailRules"
                   autofocus
                   ></v-text-field>
@@ -129,7 +132,7 @@
               id="nickname"
               name="nickname"
               label="Введите свой никнейм *"
-              v-model="regist.nickname"
+              v-model.trim="regist.nickname"
               :rules="[v => !!v || 'Требуется ввести никнейм']"
             ></v-text-field>
         </v-form>
@@ -137,7 +140,7 @@
               id="tel"
               name="tel"
               label="Введите номер телефона"
-              v-model="regist.tel"
+              v-model.trim="regist.tel"
               :mask="'(###) ## - ### - ## - ##'"
             ></v-text-field> 
         </v-flex>
@@ -208,7 +211,17 @@
         </v-layout>
       </v-container>
 </template>
-
+/*
+ 
+  ######   ######  ########  #### ########  ######## 
+ ##    ## ##    ## ##     ##  ##  ##     ##    ##    
+ ##       ##       ##     ##  ##  ##     ##    ##    
+  ######  ##       ########   ##  ########     ##    
+       ## ##       ##   ##    ##  ##           ##    
+ ##    ## ##    ## ##    ##   ##  ##           ##    
+  ######   ######  ##     ## #### ##           ##    
+ 
+*/
 <script>
 // Доделываем регистрацию, в карточке с регистрацией есть ошибки, нужно дописать проверку валидностей форм ибо если конфирм true и при изменении pass ввести разное все равно form valid
 // А еще проверить удаление из бд изображений если они были заменены
@@ -221,11 +234,11 @@ export default{
         password: '',
         confirmPassword: '',
         nickname: '',
-        tel: '',
+        tel: null,
         avatarSrc: '',
         avatar: null,
-        DOB: '',
-        myCountry: '',
+        DOB: null,
+        myCountry: null,
         confirmPasswordRules: [
           v => !!v || 'Требуется подтвердить пароль',
           v => v === this.regist.password || 'Пароли должны совпадать'],
@@ -266,6 +279,21 @@ export default{
         }
         this.$store.dispatch('registerUser', user)
         .then(() => {
+          let date = new Date().toLocaleString('ru', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+          })
+          date = date.substring(0, date.length - 3)
+          let testNote = {
+            notesName: 'Тестовая записка',
+            notesDiscription: 'Тут мы научимся пользоваться сервисом',
+            noteRatio: ['MyNote.pro', 'Тест'],
+            noteNotification: false,
+            noteDate: date,
+            uid: this.user.uid
+          }
+          this.$store.dispatch('createNote', testNote)
           this.$router.push('/notes')                 // тут можно передать парамтеры и далее провести обучение ;)
         })
         .catch(() => {})
@@ -302,7 +330,17 @@ export default{
   }
 }
 </script>
-
+/*
+ 
+  ######   ######   ######  
+ ##    ## ##    ## ##    ## 
+ ##       ##       ##       
+ ##        ######   ######  
+ ##             ##       ## 
+ ##    ## ##    ## ##    ## 
+  ######   ######   ######  
+ 
+*/
 <style scoped>
 .v-label{
   cursor: pointer !important;

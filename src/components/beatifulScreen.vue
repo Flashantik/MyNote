@@ -1,7 +1,7 @@
 <template>
 <div class="loadingScreen">
 <transition name="letsGoLeft">
-  <div class="left"  v-if="loading">
+  <div class="left" v-if="loading">
     <span class="logo">MyNote.pro
       <v-progress-linear :indeterminate="true" color="white"></v-progress-linear>
     </span>
@@ -54,6 +54,9 @@ export default{
   }
 .loadingScreen{
   z-index: 99999;
+  top: 0;
+  left: 0;
+  right: 0;
   position: fixed; 
 }
 .left, .right{

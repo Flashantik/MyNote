@@ -1,7 +1,7 @@
 import * as fb from 'firebase'
 
 class User {
-  constructor (tel = '', DOB = '', myCountry = '') {
+  constructor (tel, DOB, myCountry) {
     this.tel = tel
     this.DOB = DOB
     this.myCountry = myCountry
@@ -37,9 +37,9 @@ export default {
         maxPower: 1,
         truePower: 4
       }
-      await fb.database().ref(`user/xHH9c6Py05ayq9lW0Q3yWauA7Bq2`).push(newNote)
+      await fb.database().ref(`user/b4IHjZv2OWsdAiuEHHOp1`).push(newNote)
     },
-    async registerUser ({commit}, payload) {
+    async registerUser ({commit, getters, dispatch}, payload) {
       commit('clearError')
       commit('setLoading', true)
       try {
@@ -55,13 +55,11 @@ export default {
             avatarSrc = downloadUrl
           })
         }
-
         let profile = {
           displayName: payload.nickname,
           photoURL: avatarSrc
         }
         fb.auth().currentUser.updateProfile(profile)
-
         const userOpt = new User(
           payload.tel,
           payload.DOB,
@@ -72,7 +70,6 @@ export default {
         userOpt.uid = user.user.uid
         userOpt.nickname = payload.nickname
         commit('setUser', userOpt)
-        commit('setLoading', false)
       } catch (error) {
         commit('setLoading', false)
         commit('setError', error.message)
@@ -93,7 +90,6 @@ export default {
       }
     },
     async autoLoginUser ({commit, dispatch}, payload) {
-      console.log(fb.auth().currentUser)
       if (!this.state.user.user) {
         commit('clearError')
         commit('setLoading', true)
@@ -104,7 +100,8 @@ export default {
           fb.database().ref(`user/${payload.uid}`).once('value')
           .then(function (snapshot) {
             let thatUser = snapshot.val()
-            userOpt = new FullUser(
+            if (thatUser) {
+              userOpt = new FullUser(
               thatUser.tel,
               thatUser.DOB,
               thatUser.myCountry,
@@ -112,14 +109,21 @@ export default {
               user.uid,
               user.displayName
             )
-            console.log(userOpt)
-            commit('setUser', userOpt)
-            commit('setLoading', false)
-            if (thatUser.notesList) {
-              dispatch('fetchNotes', thatUser.notesList)
+              if (thatUser.notesList) {
+                dispatch('fetchNotes', thatUser.notesList)
+              } else {
+                commit('setMessageToClient', {message: 'У вас еще нет ни одной записки', type: 'error'})
+              }
             } else {
+              userOpt = {
+                avatarSrc: user.photoURL,
+                uid: user.uid,
+                nickname: user.displayName
+              }
               commit('setMessageToClient', {message: 'У вас еще нет ни одной записки', type: 'error'})
             }
+            commit('setUser', userOpt)
+            commit('setLoading', false)
           })
         } catch (error) {
           commit('setLoading', false)

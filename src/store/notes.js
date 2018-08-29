@@ -14,7 +14,8 @@ class Note {
 
 export default {
   state: {
-    notes: []
+    notes: [],
+    text: ''
   },
   mutations: {
     createNote (state, payload) {
@@ -28,6 +29,9 @@ export default {
     },
     loadNotes (state, payload) {
       state.notes = payload
+    },
+    setText (state, payload) {
+      state.text = payload
     }
   },
   actions: {
@@ -35,7 +39,6 @@ export default {
       commit('clearError')
       commit('setLoading', true)
       try {
-        console.log(payload)
         const newNote = new Note(
           payload.notesName,
           payload.notesDiscription,
@@ -67,6 +70,7 @@ export default {
             id: note.key
           })
         }
+        await fb.database().ref(`notes/${this.state.user.user.uid}/${note.key}`).set('')
         commit('setLoading', false)
       } catch (error) {
         commit('setError', error.message)
@@ -143,6 +147,7 @@ export default {
           dispatch('deleteImage', {image: payload.imageSrc})
         }
         await fb.database().ref(`user/${this.state.user.user.uid}/notesList/${payload.id}`).remove()
+        await fb.database().ref(`notes/${this.state.user.user.uid}/${payload.id}`).remove()
         commit('setLoading', false)
       } catch (error) {
         commit('setError', error.message)
@@ -211,15 +216,44 @@ export default {
         commit('setLoading', false)
         throw error
       }
+    },
+    async fetchText ({commit}, payload) {
+      commit('clearError')
+      commit('setLoading', true)
+      try {
+        const fbVal = await fb.database().ref(`notes/${this.state.user.user.uid}/${payload}`).once('value')
+        commit('setText', fbVal.val())
+        commit('setLoading', false)
+      } catch (error) {
+        commit('setError', error.message)
+        commit('setLoading', false)
+        throw error
+      }
+    },
+    async pushText ({commit}, payload) {
+      commit('clearError')
+      commit('setLoading', true)
+      try {
+        await fb.database().ref(`notes/${this.state.user.user.uid}/${payload.id}`).set(payload.text)
+        commit('setMessageToClient', {message: 'Данные успешно сохранены', type: 'green'})
+        commit('setLoading', false)
+      } catch (error) {
+        commit('setError', error.message)
+        commit('setLoading', false)
+        throw error
+      }
     }
   },
   getters: {
     notes (state) {
       return state.notes
     },
+    noteText (state) {
+      return state.text
+    },
     noteById (state) {
       return noteId => {
-        return state.notes.find(note => note.id === noteId)
+        return state.notes.find(note => note.notesName === noteId)
       }
     }
   }

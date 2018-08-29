@@ -70,9 +70,6 @@
         class="btn-header">
           <v-icon left>{{item.icon}}</v-icon>
          {{item.title}}</v-btn>
-         <v-btn @click="$store.dispatch('pushFakeData')">
-           Пробуем ламаць
-         </v-btn>
          </v-toolbar-items>
     </v-toolbar>
   <v-content>
@@ -107,7 +104,6 @@
       </v-btn>
     </v-snackbar>
     </template>
-   <app-bs></app-bs>
   </v-app>
 </template>
 
@@ -134,8 +130,8 @@ export default {
     items () {
       if (this.userlogged) {
         return [
-        { title: 'Выйти из аккаунта', icon: 'exit_to_app', url: '/', methods: this.onLogout },
-        { title: 'К запискам', icon: 'monetization_on', url: '/notes', methods: '' }]
+          { title: 'К запискам', icon: 'monetization_on', url: '/notes', methods: '' },
+          { title: 'Выйти из аккаунта', icon: 'exit_to_app', url: '/', methods: this.onLogout }]
       } else {
         return [ { title: this.registration === true ? 'Авторизация' : 'Регистрация', icon: this.registration === true ? 'fa-sign-in-alt' : 'fa-user-plus', methods: () => { this.registration = !this.registration } },
         { title: 'О сайте', icon: 'monetization_on' }]
@@ -182,4 +178,15 @@ export default {
 .v-btn--active:hover{
 border-bottom: 3px solid rgb(25, 118, 210);
 }
+
+ @keyframes rounded {
+  from{}
+  to{
+    transform:rotate(-180deg)
+  }
+}
+
+  .round{
+    animation: rounded 1s linear infinite;
+  }
 </style>

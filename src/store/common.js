@@ -2,7 +2,8 @@ export default {
   state: {
     loading: false,
     error: null,
-    messageToClient: null
+    messageToClient: null,
+    saving: null
   },
   mutations: {
     setLoading (state, payload) {
