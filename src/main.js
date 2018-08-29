@@ -31,7 +31,6 @@ fb.initializeApp({
 })
 
 /* eslint-disable no-new */
-
 fb.auth().onAuthStateChanged(user => {
   if (!app) {
     new Vue({

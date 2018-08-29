@@ -1,5 +1,5 @@
 <template>
-  <v-app>
+  <v-app :dark="time > 21 || time < 8" :light="time > 8 || time < 21">
   <v-navigation-drawer
       v-model="drawer"
       :mini-variant="mini"
@@ -18,7 +18,7 @@
             <img :src="user && user.avatarSrc ? user.avatarSrc :'http://s1.iconbird.com/ico/0612/GooglePlusInterfaceIcons/w128h1281338911651user.png'">
           </v-list-tile-avatar>
           <v-list-tile-content>
-            <v-list-tile-title>{{user && user.nickname ? user.nickname :'Неизвестный'}}</v-list-tile-title>
+            <v-list-tile-title>{{user && user.email ? user.email :'Неизвестный'}}</v-list-tile-title>
           </v-list-tile-content>
           <v-list-tile-action>
             <v-btn icon @click.stop="mini = !mini">
@@ -53,7 +53,7 @@
         </v-list-tile>
       </v-list>
     </v-navigation-drawer>
-    <v-toolbar  relative app dark class="header">
+    <v-toolbar relative app dark class="header">
       <v-toolbar-side-icon
       class="hidden-md-and-up" 
       @click="drawer = !drawer"></v-toolbar-side-icon>
@@ -118,6 +118,9 @@ export default {
   },
   name: 'App',
   computed: {
+    time () {
+      return new Date().getHours()
+    },
     error () {
       return this.$store.getters.error
     },
