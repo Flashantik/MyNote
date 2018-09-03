@@ -143,9 +143,7 @@
         <v-card-actions>
         <v-layout>
            <v-subheader class="datatime " title="Дата создания записки?">{{editMode ? dateNote :dataTimeNow}}</v-subheader>
-           
           <v-spacer>
-
           </v-spacer>
           <v-subheader class="datatime " title="Дата последнего редактирования">{{editMode ? dateNote :dataTimeNow}}</v-subheader>
         </v-layout>
@@ -162,17 +160,68 @@
         </v-container>
       </v-card>
     </v-dialog>
-  <v-layout>
+  <v-layout row wrap>
     <v-btn color="primary" @click="dialog=true" v-show="!editMode">Добавить Notes</v-btn>
-    <v-btn :color="!editMode ? 'error' : 'black'" :outline="!editMode ? false : true" @click="settingsMode" >
+    <v-btn :color="!editMode ? 'error' : 'black'" :outline="!editMode ? false : true" @click="settingsMode">
       {{editMode == false ? 'Редактировать карточки': ''}}
         <v-icon v-if="editMode == true" class="gear">
           settings
         </v-icon>
       </v-btn>
+      <v-spacer></v-spacer>
+      <v-btn color="primary" @click="drawerRight = !drawerRight">Настройки
+       <v-icon class="arrow" style="transition: transform .5s ease-out" :style="!drawerRight ? 'transform:rotate(0deg)' : 'transform:rotate(180deg)'">arrow_back</v-icon>
+       </v-btn>
+      <!-- disable-resize-watcher отключает открытие при ресайзе -->
+        <v-navigation-drawer
+      v-model="drawerRight"
+      fixed
+      right
+      clipped
+      app
+    >
+      <v-list>
+      <v-list-tile>
+        <v-list-tile-action>
+          <v-icon>settings</v-icon>
+        </v-list-tile-action>
+        <v-list-tile-title>Настройки</v-list-tile-title>
+      </v-list-tile>
+      <v-list-group
+        prepend-icon="tag"
+        value="true"
+      >
+        <v-list-tile slot="activator">
+          <v-list-tile-title>Фильтры</v-list-tile-title>
+        </v-list-tile>
+        <v-list-group
+          no-action
+          sub-group
+          value="true"
+        >
+          <v-list-tile slot="activator">
+            <v-list-tile-title>По тегам</v-list-tile-title>
+          </v-list-tile>
+          <v-list-tile
+            v-for="(val, i) in noteRatioList"
+            :key="i"
+          >
+            <!-- <v-list-tile-title v-text="val"></v-list-tile-title> -->
+            <v-list-tile-action>
+              <v-switch
+              v-model="filterByTags"
+              :label="val"
+              :value="val"
+              hide-details
+            ></v-switch>
+            </v-list-tile-action>
+          </v-list-tile>
+        </v-list-group>
+      </v-list-group>
+    </v-list>
+    </v-navigation-drawer>
       </v-layout>
     <br>
-
   <!-- <v-flex xs12>
         <v-card color="cyan darken-2" class="white--text">
           <v-layout>
@@ -207,11 +256,12 @@
       </v-flex> -->
     <template v-if="!loading">
       <!-- {{phoneOrient}} -->
+      {{filterByTags}}
     <grid
     :center="windowWidth" 
     :draggable="editMode" 
     :sortable="editMode" 
-    :items="notesVuex" 
+    :items="newListItems.length >=1 ? newListItems : notesVuex" 
     :width="100" 
     :cellWidth="289.5"
     :cellHeight="400"
@@ -241,11 +291,12 @@
     >
       <v-btn 
         slot="activator"
-        color="blue darken-2"
+        color="black darken-2"
+        outline
         dark
         fab
       >
-        <v-icon>account_circle</v-icon>
+        <v-icon color="white">tag</v-icon>
         <v-icon>close</v-icon>
       </v-btn>
       <v-btn
@@ -315,7 +366,9 @@
  
 */
 
+
 <script>
+// Лучше кароч сделать один лист и его менять как мне кажется чтобы небыло бага при изменении фильтрации карточек
   export default {
     data () {
       return {
@@ -346,7 +399,10 @@
         valid: false,
         search: null,
         seeCards: false,
-        dialog2: false
+        dialog2: false,
+        drawerRight: true,
+        filterByTags: [],
+        newListItems: []
       }
     },
     computed: {
@@ -371,10 +427,12 @@
         return this.$store.getters.notes
       }
     },
+    watch: {
+      filterByTags: function (value) {
+        this.newListItems = this.notesVuex.filter((v, key) => v.noteRatio.some(item => value.some(vs => vs === item)))
+      }
+    },
     methods: {
-      fnc (val) {
-        console.log(val)
-      },
       editCard (val) {
         this.notesName = val.item.notesName
         this.notesDiscription = val.item.notesDiscription
@@ -680,7 +738,7 @@
 
   .v-speed-dial, .editBtn {
     z-index: 9999;
-    transform: translateX(25%) translateY(-50%) scale(.9);
+    transform: translateX(15%) translateY(-12.5%) scale(.9);
     position: absolute;
     top: 0px;
     right: 0px;

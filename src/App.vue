@@ -133,7 +133,7 @@ export default {
     items () {
       if (this.userlogged) {
         return [
-          { title: 'К запискам', icon: 'monetization_on', url: '/notes', methods: '' },
+          { title: 'К запискам', icon: 'home', url: '/notes', methods: '' },
           { title: 'Выйти из аккаунта', icon: 'exit_to_app', url: '/', methods: this.onLogout }]
       } else {
         return [ { title: this.registration === true ? 'Авторизация' : 'Регистрация', icon: this.registration === true ? 'fa-sign-in-alt' : 'fa-user-plus', methods: () => { this.registration = !this.registration } },

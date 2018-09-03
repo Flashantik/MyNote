@@ -25,71 +25,124 @@
                   :prepend-icon="valid ? 'lock_open' : 'lock'"
                   name="password"
                   label="Пароль"
-                  type="password"
                   v-model="password"
                   @keydown.enter='onSubmit'
                   :counter="14"
                   :rules="passwordRules"
                   color="gray"
+                  :type="glaz ? 'text' : 'password'"
+                  :append-icon="glaz ? 'visibility' : 'visibility_off'"
+                  @click:append="() => (glaz = !glaz)"
                   ></v-text-field>
                 </v-form>
               </v-card-text>
               <v-card-actions>
-                <v-btn flat>Забыли пароль?</v-btn>
-                <v-spacer></v-spacer>
-                <v-btn 
-                @click="onSubmit"
-                v-on:keydown.enter.prevent='onSubmit'
-                :loading="loading"
-                :disabled="!valid || loading"
-                >Войти</v-btn>
-              </v-card-actions>
-            </v-card>
-            <v-card class="elevation-12 perspective" key='2' v-else>
-              <v-toolbar>
-                <v-toolbar-title>Регистрация</v-toolbar-title> 
-              </v-toolbar>
-              <v-card-text>
-                <v-form ref="form" v-model.trim="valid" validation>
-                  <v-text-field 
-                  prepend-icon="person" 
-                  name="E-mail" 
-                  label="E-mail" 
-                  type="text"
-                  v-model="regist.email"
-                  :rules="emailRules"
-                  autofocus
-                  color="gray"
-                  ></v-text-field>
-                  <v-text-field id="password" 
-                  prepend-icon="lock" 
-                  name="password"
-                  label="Пароль"
-                  :type="regist.glaz ? 'text' : 'password' "
-                  :append-icon="regist.glaz ? 'visibility' : 'visibility_off'"
-                  @click:append="() => (regist.glaz = !regist.glaz)"
-                  v-model="regist.password"
-                  :counter="14"
-                  :rules="passwordRules && regist.confirmPasswordRules"
-                  color="gray"
-                  >
-                  </v-text-field>
-                  <v-text-field id="confirmPassword" 
-                  prepend-icon="lock" 
-                  name="password" 
-                  label="Подтвердите пароль"
-                  v-model="regist.confirmPassword"
-                  :counter="14"
-                  :rules="regist.confirmPasswordRules"
-                  :append-icon="regist.glaz2 ? 'visibility' : 'visibility_off'"
-                  @click:append="() => (regist.glaz2 = !regist.glaz2)"
-                  :type="regist.glaz2 ? 'text' : 'password'"
-                  color="gray"
-                  ></v-text-field>
-                </v-form>
-              </v-card-text>
-              <v-card-actions>
-                <v-spacer></v-spacer>
+                <v-dialog
+                v-model="passReset"
+      width="500"
+    >
+      <v-btn
+        slot="activator"
+        flat
+      >
+        Забыли пароль?
+      </v-btn>
+
+      <v-card>
+        <v-card-title
+          class=" grey lighten-2"
+          primary-title
+        >
+          <h2>Введите ваш Email для восстановления пароля</h2>
+        </v-card-title>
+        <v-card-text>
+          <v-form ref="form" v-model.trim="valid2" validation>
+        <v-text-field
+          prepend-icon="person" 
+          name="E-mail" 
+          label="E-mail"
+          type="text"
+          v-model="email"
+          :rules="emailRules"
+          autofocus
+          color="gray"
+        ></v-text-field>
+          </v-form>
+        </v-card-text>
+        <v-divider></v-divider>
+        <v-card-actions>
+          <v-btn
+          flat
+          @click="passReset = false"
+          >
+            Закрыть
+          </v-btn>
+          <v-spacer></v-spacer>
+          <v-btn
+            color="green"
+            flat
+            :disabled="!valid2 || loading"
+            @click="passwordReset"
+          >
+            Отправить ключ восстановления
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+          <v-spacer></v-spacer>
+          <v-btn 
+          @click="onSubmit"
+          v-on:keydown.enter.prevent='onSubmit'
+          :loading="loading"
+          :disabled="!valid || loading"
+          >Войти</v-btn>
+        </v-card-actions>
+      </v-card>
+      <v-card class="elevation-12 perspective" key='2' v-else>
+        <v-toolbar>
+          <v-toolbar-title>Регистрация</v-toolbar-title> 
+        </v-toolbar>
+        <v-card-text>
+          <v-form ref="form" v-model.trim="valid" validation :lazy-validation="false">
+            <v-text-field 
+            prepend-icon="person" 
+            name="E-mail" 
+            label="E-mail" 
+            type="text"
+            v-model="regist.email"
+            :rules="emailRules"
+            autofocus
+            color="gray"
+            ></v-text-field>
+            <v-text-field id="password" 
+            prepend-icon="lock" 
+            name="password"
+            label="Пароль"
+            :type="regist.glaz ? 'text' : 'password' "
+            :append-icon="regist.glaz ? 'visibility' : 'visibility_off'"
+            @click:append="() => (regist.glaz = !regist.glaz)"
+            v-model="regist.password"
+            :counter="14"
+            :rules="regist.passwordRulesConfirmed"
+            color="gray"
+            >
+            </v-text-field>
+            <v-text-field id="confirmPassword" 
+            prepend-icon="lock" 
+            name="password" 
+            label="Подтвердите пароль"
+            v-model="regist.confirmPassword"
+            :counter="14"
+            :rules="regist.confirmPasswordRules"
+            :append-icon="regist.glaz2 ? 'visibility' : 'visibility_off'"
+            @click:append="() => (regist.glaz2 = !regist.glaz2)"
+            :type="regist.glaz2 ? 'text' : 'password'"
+            color="gray"
+            ></v-text-field>
+          </v-form>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
          <v-btn 
           @click="onRegist"
           :loading="loading"
@@ -116,7 +169,6 @@
 */
 <script>
 // Доделываем регистрацию, в карточке с регистрацией есть ошибки, нужно дописать проверку валидностей форм ибо если конфирм true и при изменении pass ввести разное все равно form valid
-// А еще проверить удаление из бд изображений если они были заменены
 export default{
   props: ['registration'],
   data () {
@@ -128,12 +180,17 @@ export default{
         confirmPasswordRules: [
           v => !!v || 'Требуется подтвердить пароль',
           v => v === this.regist.password || 'Пароли должны совпадать'],
+        passwordRulesConfirmed: [ v => !!v || 'Требуется ввести пароль',
+          v => (v && v.length >= 5 && v.length <= 14) || 'Длинна пароля должна быть от 5 до 14 символов'],
         glaz: false,
         glaz2: false
       },
       email: '',
       password: '',
       valid: false,
+      valid2: false,
+      passReset: false,
+      glaz: false,
       emailRules: [v => !!v || 'Требуется электронная почта',
         v => /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(v) || 'E-mail Должен быть верным'],
       passwordRules: [ v => !!v || 'Требуется ввести пароль',
@@ -149,6 +206,9 @@ export default{
     }
   },
   methods: {
+    passwordReset () {
+      this.$store.dispatch('resetPassword', this.email)
+    },
     onRegist () {
       if (this.$refs.form.validate()) {
         const user = {

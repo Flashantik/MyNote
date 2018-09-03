@@ -13,6 +13,19 @@ export default {
     }
   },
   actions: {
+    resetPassword ({commit}, payload) {
+      commit('clearError')
+      commit('setLoading', true)
+      try {
+        fb.auth().sendPasswordResetEmail(payload).then(() => {
+          commit('setLoading', false)
+          commit('setMessageToClient', {message: `Информация по восстановлению пароля отправлена на ваш Email: ${payload}`, type: 'info'})
+        })
+      } catch (error) {
+        commit('setLoading', false)
+        commit('setError', error.message)
+      }
+    },
     async registerUser ({commit}, payload) {
       commit('clearError')
       commit('setLoading', true)

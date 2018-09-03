@@ -1,4 +1,5 @@
 import * as fb from 'firebase'
+import Vue from 'vue'
 
 class Note {
   constructor (notesName, notesDiscription, noteRatio = [], noteNotification, noteDate, imageSrc, id = '') {
@@ -22,7 +23,7 @@ export default {
       state.notes.push(payload)
     },
     changeNote (state, payload) {
-      state.notes[payload.key] = payload
+      Vue.set(state.notes, payload.key, payload)
     },
     deleteNote (state, payload) {
       state.notes.splice([payload.key], 1)
@@ -91,7 +92,7 @@ export default {
           '',
           payload.id
         )
-        if (getters.notes[payload.index].imageSrc !== '') {
+        if (getters.notes[payload.index].imageSrc !== '' && payload.image == null) {
           dispatch('deleteImage', {image: payload.imageSrc})
         }
         await fb.database().ref(`user/${payload.uid}/notesList/${payload.id}`).update(newNote)
@@ -128,6 +129,7 @@ export default {
       commit('clearError')
       commit('setLoading', true)
       try {
+        console.log(payload)
         await fb.storage().refFromURL(payload.image).delete()
         commit('setLoading', false)
       } catch (error) {
@@ -251,7 +253,7 @@ export default {
     noteText (state) {
       return state.text
     },
-    noteById (state) {
+    noteById (state, payload) {
       return noteId => {
         return state.notes.find(note => note.notesName === noteId)
       }
