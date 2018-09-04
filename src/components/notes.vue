@@ -162,7 +162,7 @@
     </v-dialog>
   <v-layout row wrap>
     <v-btn color="primary" @click="dialog=true" v-show="!editMode">Добавить Notes</v-btn>
-    <v-btn :color="!editMode ? 'error' : 'black'" :outline="!editMode ? false : true" @click="settingsMode">
+    <v-btn :color="!editMode ? 'error' : 'black'" :outline="!editMode ? false : true" @click="settingsMode" class="gearBtn">
       {{editMode == false ? 'Редактировать карточки': ''}}
         <v-icon v-if="editMode == true" class="gear">
           settings
@@ -172,8 +172,11 @@
       <v-btn color="primary" @click="drawerRight = !drawerRight">Настройки
        <v-icon class="arrow" style="transition: transform .5s ease-out" :style="!drawerRight ? 'transform:rotate(0deg)' : 'transform:rotate(180deg)'">arrow_back</v-icon>
        </v-btn>
+       <v-btn absolute right flat color="error" icon v-if="!drawerRight && filterByTags.length !=0" title="Убрать все фильтры" style="margin-top:6px;" @click="filterByTags = []">
+         <v-icon>close</v-icon>
+       </v-btn>
       <!-- disable-resize-watcher отключает открытие при ресайзе -->
-        <v-navigation-drawer
+    <v-navigation-drawer
       v-model="drawerRight"
       fixed
       right
@@ -189,7 +192,6 @@
       </v-list-tile>
       <v-list-group
         prepend-icon="tag"
-        value="true"
       >
         <v-list-tile slot="activator">
           <v-list-tile-title>Фильтры</v-list-tile-title>
@@ -197,7 +199,6 @@
         <v-list-group
           no-action
           sub-group
-          value="true"
         >
           <v-list-tile slot="activator">
             <v-list-tile-title>По тегам</v-list-tile-title>
@@ -217,6 +218,16 @@
             </v-list-tile-action>
           </v-list-tile>
         </v-list-group>
+      </v-list-group>
+      <v-list-group
+        prepend-icon="book"
+      >
+        <v-list-tile slot="activator">
+          <v-list-tile-title>Расписание</v-list-tile-title>
+        </v-list-tile>
+          <v-btn block color="green accent-4" @click="modalTime = true">
+            Добавить расписание
+          </v-btn>
       </v-list-group>
     </v-list>
     </v-navigation-drawer>
@@ -256,13 +267,12 @@
       </v-flex> -->
     <template v-if="!loading">
       <!-- {{phoneOrient}} -->
-      {{filterByTags}}
     <grid
     :center="windowWidth" 
     :draggable="editMode" 
     :sortable="editMode" 
-    :items="newListItems.length >=1 ? newListItems : notesVuex" 
-    :width="100" 
+    :items="ska"
+    :width="100"
     :cellWidth="289.5"
     :cellHeight="400"
     @dragend="sortNotes" 
@@ -351,6 +361,7 @@
     </grid>
     </template>
     <app-bs></app-bs>
+    <app-time :modal="modalTime" @close="closeModal"></app-time>
   </v-container>
 </template>
 
@@ -369,7 +380,9 @@
 
 <script>
 // Лучше кароч сделать один лист и его менять как мне кажется чтобы небыло бага при изменении фильтрации карточек
+  import appTime from './time.vue'
   export default {
+    components: {appTime},
     data () {
       return {
         notesName: '',
@@ -400,9 +413,11 @@
         search: null,
         seeCards: false,
         dialog2: false,
+        modalTime: true,
         drawerRight: true,
         filterByTags: [],
-        newListItems: []
+        newListItems: [],
+        ska: []
       }
     },
     computed: {
@@ -424,12 +439,13 @@
         return this.$store.getters.user
       },
       notesVuex () {
+        this.ska = this.$store.getters.notes
         return this.$store.getters.notes
       }
     },
     watch: {
       filterByTags: function (value) {
-        this.newListItems = this.notesVuex.filter((v, key) => v.noteRatio.some(item => value.some(vs => vs === item)))
+        value.length >= 1 ? this.ska = this.notesVuex.filter((v, key) => v.noteRatio.some(item => value.some(vs => vs === item))) : this.ska = this.$store.getters.notes
       }
     },
     methods: {
@@ -573,7 +589,7 @@
         if (this.notesVuex) {
           if (document.getElementById('contain')) {
             let x = document.getElementById('contain').clientWidth
-            if ((x / 289.5).toFixed(2) - this.notesVuex.length > 1) {
+            if ((x / 289.5).toFixed(2) - this.ska.length > 1) {
               this.windowWidth = false
             } else {
               this.windowWidth = true
@@ -586,6 +602,10 @@
         if ((window.innerWidth / window.innerHeight) > 1.5 && window.innerWidth < 1000) {
           this.phoneOrient = true
         }
+      },
+      closeModal () {
+        console.log(1)
+        this.modalTime = false
       }
     },
     beforeMount () {
@@ -713,9 +733,12 @@
 }
 
   .gear{
-    animation: rounded 1s linear infinite;
+    animation: rounded 1.2s linear infinite;
   }
-  
+  .gearBtn:hover .gear{
+    animation-play-state:paused;
+  }
+
 .eye:hover{
   animation-direction: reverse;
   animation-duration: 1.5s;
