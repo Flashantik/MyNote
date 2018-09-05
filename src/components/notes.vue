@@ -161,15 +161,15 @@
       </v-card>
     </v-dialog>
   <v-layout row wrap>
-    <v-btn color="primary" @click="dialog=true" v-show="!editMode">Добавить Notes</v-btn>
-    <v-btn :color="!editMode ? 'error' : 'black'" :outline="!editMode ? false : true" @click="settingsMode" class="gearBtn">
+    <v-btn class="btnOnPage" color="primary" @click="dialog=true" v-show="!editMode">Добавить Notes</v-btn>
+    <v-btn class="btnOnPage gearBtn" :color="!editMode ? 'error' : 'black'" :outline="!editMode ? false : true" @click="settingsMode">
       {{editMode == false ? 'Редактировать карточки': ''}}
         <v-icon v-if="editMode == true" class="gear">
           settings
         </v-icon>
       </v-btn>
       <v-spacer></v-spacer>
-      <v-btn color="primary" @click="drawerRight = !drawerRight">Настройки
+      <v-btn class="btnOnPage" color="primary" @click="drawerRight = !drawerRight">Настройки
        <v-icon class="arrow" style="transition: transform .5s ease-out" :style="!drawerRight ? 'transform:rotate(0deg)' : 'transform:rotate(180deg)'">arrow_back</v-icon>
        </v-btn>
        <v-btn absolute right flat color="error" icon v-if="!drawerRight && filterByTags.length !=0" title="Убрать все фильтры" style="margin-top:6px;" @click="filterByTags = []">
@@ -207,7 +207,6 @@
             v-for="(val, i) in noteRatioList"
             :key="i"
           >
-            <!-- <v-list-tile-title v-text="val"></v-list-tile-title> -->
             <v-list-tile-action>
               <v-switch
               v-model="filterByTags"
@@ -233,55 +232,61 @@
     </v-navigation-drawer>
       </v-layout>
     <br>
-  <!-- <v-flex xs12>
-        <v-card color="cyan darken-2" class="white--text">
-          <v-layout>
-            <v-flex xs5>
-              <v-card-media
-                src="https://cdn.vuetifyjs.com/images/cards/foster.jpg"
-                height="125px"
-                contain
-              ></v-card-media>
-            </v-flex>
-            <v-flex xs7>
-              <v-card-title primary-title>
-                <div>
-                  <div class="headline">Supermodel</div>
-                  <div>Foster the People</div>
-                  <div>(2014)</div>
-                </div>
-              </v-card-title>
-            </v-flex>
-          </v-layout>
-          <v-divider light></v-divider>
-          <v-card-actions class="pa-3">
-            Rate this album
-            <v-spacer></v-spacer>
-            <v-icon>star_border</v-icon>
-            <v-icon>star_border</v-icon>
-            <v-icon>star_border</v-icon>
-            <v-icon>star_border</v-icon>
-            <v-icon>star_border</v-icon>
-          </v-card-actions>
-        </v-card>
-      </v-flex> -->
     <template v-if="!loading">
-      <!-- {{phoneOrient}} -->
     <grid
     :center="windowWidth" 
     :draggable="editMode" 
     :sortable="editMode" 
     :items="ska"
     :width="100"
-    :cellWidth="289.5"
-    :cellHeight="400"
+    :cellWidth="phoneOrient ? 400 :289.5"
+    :cellHeight="phoneOrient ? 289.5 : 400"
     @dragend="sortNotes" 
     @dragstart="pressed"
     style="margin-top:25px"
     v-if="notesVuex"
     >
-      <template slot="cell" slot-scope="props">
-        <v-card class="mycard" :class="pushed ? 'grabbable' : ''" :style="pushed ? 'cursor:move; cursor:grabbing' : 'cursor:grab' ">
+      <template slot="cell" slot-scope="props" >
+        <v-card color="cyan darken-2" class="white--text" v-if="phoneOrient" :class="pushed ? 'grabbable' : ''" :style="pushed ? 'cursor:move; cursor:grabbing' : 'cursor:grab' ">
+          <router-link v-if="!editMode" :to="{path: `${props.item.notesName}`, params: {id: id}}" class="link"></router-link>
+          <v-layout>
+            <v-flex xs5>
+              <v-card-media
+                :src="props.item.imageSrc ? props.item.imageSrc :'http://via.placeholder.com/350x150'"
+                height="170px"
+                contain
+              >
+              <transition name="fade">
+    <v-btn fab dark 
+    class="editBtn"
+    color="info"
+    v-if="editMode"
+    @click.prevent.stop="editCard(props)" 
+    >
+      <v-icon dark>edit</v-icon>
+    </v-btn>
+        </transition>
+              </v-card-media>
+            </v-flex>
+            <v-flex xs7>
+              <v-card-title primary-title>
+                <div>
+                  <div class="headline">{{props.item.notesName}}</div>
+                  <div>{{props.item.notesDiscription != '' ? props.item.notesDiscription : 'Описание вашей записки'}}</div>
+                </div>
+              </v-card-title>
+            </v-flex>
+          </v-layout>
+          <v-divider light></v-divider>
+          <v-card-actions class="pa-3">
+            <v-subheader class="datatime " title="Дата создания записки" style="text-align:left">{{props.item.noteDate}}</v-subheader>
+            <v-spacer></v-spacer>
+            <v-subheader class="datatime " title="Дата последнего редактирования" style="text-align:right">{{dataTimeNow}}</v-subheader>   
+          </v-card-actions>
+        </v-card>
+      
+      
+      <v-card v-if="!phoneOrient" class="mycard" :class="pushed ? 'grabbable' : ''" :style="pushed ? 'cursor:move; cursor:grabbing' : 'cursor:grab' ">
            <router-link v-if="!editMode" :to="{path: `${props.item.notesName}`, params: {id: id}}" class="link"></router-link>
         <v-card-media 
           class="white--text"
@@ -298,6 +303,7 @@
       :open-on-hover="true"
       transition="slide-x-reverse-transition"
       v-if='props.item.noteRatio.length != 0 && editMode == false && props.item.noteRatio'
+      class="speedDialWithPC"
     >
       <v-btn 
         slot="activator"
@@ -413,8 +419,8 @@
         search: null,
         seeCards: false,
         dialog2: false,
-        modalTime: true,
-        drawerRight: true,
+        modalTime: false,
+        drawerRight: false,
         filterByTags: [],
         newListItems: [],
         ska: []
@@ -426,7 +432,11 @@
           let mas = []
           this.notesVuex.forEach(val => {
             val.noteRatio.forEach(value => {
-              mas.push(value)
+              if (mas.some(item => {
+                return item === value
+              }) === false) {
+                mas.push(value)
+              }
             })
           })
           return mas
@@ -604,7 +614,6 @@
         }
       },
       closeModal () {
-        console.log(1)
         this.modalTime = false
       }
     },
@@ -759,7 +768,7 @@
     opacity: 0;
   }
 
-  .v-speed-dial, .editBtn {
+  .speedDialWithPC, .editBtn {
     z-index: 9999;
     transform: translateX(15%) translateY(-12.5%) scale(.9);
     position: absolute;

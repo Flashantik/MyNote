@@ -11,6 +11,7 @@
             <v-btn dark flat @click.native="$emit('close')">Save</v-btn>
           </v-toolbar-items>
         </v-toolbar>
+        
         <v-container>
         <v-list three-line subheader>
           <v-subheader>Ваше расписание</v-subheader>
