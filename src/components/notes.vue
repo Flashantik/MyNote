@@ -175,9 +175,9 @@
        <v-btn absolute right flat color="error" icon v-if="!drawerRight && filterByTags.length !=0" title="Убрать все фильтры" style="margin-top:6px;" @click="filterByTags = []">
          <v-icon>close</v-icon>
        </v-btn>
-      <!-- disable-resize-watcher отключает открытие при ресайзе -->
     <v-navigation-drawer
       v-model="drawerRight"
+      disable-resize-watcher
       fixed
       right
       clipped
@@ -233,60 +233,23 @@
       </v-layout>
     <br>
     <template v-if="!loading">
+      {{windowWidth}}
     <grid
-    :center="windowWidth" 
-    :draggable="editMode" 
-    :sortable="editMode" 
+    :center="windowWidth"
+    :draggable="editMode"
+    :sortable="editMode"
     :items="ska"
     :width="100"
     :cellWidth="phoneOrient ? 400 :289.5"
     :cellHeight="phoneOrient ? 289.5 : 400"
-    @dragend="sortNotes" 
+    @dragend="sortNotes"
     @dragstart="pressed"
     style="margin-top:25px"
     v-if="notesVuex"
     >
       <template slot="cell" slot-scope="props" >
-        <v-card color="cyan darken-2" class="white--text" v-if="phoneOrient" :class="pushed ? 'grabbable' : ''" :style="pushed ? 'cursor:move; cursor:grabbing' : 'cursor:grab' ">
-          <router-link v-if="!editMode" :to="{path: `${props.item.notesName}`, params: {id: id}}" class="link"></router-link>
-          <v-layout>
-            <v-flex xs5>
-              <v-card-media
-                :src="props.item.imageSrc ? props.item.imageSrc :'http://via.placeholder.com/350x150'"
-                height="170px"
-                contain
-              >
-              <transition name="fade">
-    <v-btn fab dark 
-    class="editBtn"
-    color="info"
-    v-if="editMode"
-    @click.prevent.stop="editCard(props)" 
-    >
-      <v-icon dark>edit</v-icon>
-    </v-btn>
-        </transition>
-              </v-card-media>
-            </v-flex>
-            <v-flex xs7>
-              <v-card-title primary-title>
-                <div>
-                  <div class="headline">{{props.item.notesName}}</div>
-                  <div>{{props.item.notesDiscription != '' ? props.item.notesDiscription : 'Описание вашей записки'}}</div>
-                </div>
-              </v-card-title>
-            </v-flex>
-          </v-layout>
-          <v-divider light></v-divider>
-          <v-card-actions class="pa-3">
-            <v-subheader class="datatime " title="Дата создания записки" style="text-align:left">{{props.item.noteDate}}</v-subheader>
-            <v-spacer></v-spacer>
-            <v-subheader class="datatime " title="Дата последнего редактирования" style="text-align:right">{{dataTimeNow}}</v-subheader>   
-          </v-card-actions>
-        </v-card>
-      
-      
-      <v-card v-if="!phoneOrient" class="mycard" :class="pushed ? 'grabbable' : ''" :style="pushed ? 'cursor:move; cursor:grabbing' : 'cursor:grab' ">
+
+      <v-card v-if="!phoneOrient" class="mycard note" :class="pushed ? 'grabbable' : ''" :style="pushed ? 'cursor:move; cursor:grabbing' : 'cursor:grab' ">
            <router-link v-if="!editMode" :to="{path: `${props.item.notesName}`, params: {id: id}}" class="link"></router-link>
         <v-card-media 
           class="white--text"
@@ -363,6 +326,45 @@
         </v-layout>
         </v-card-actions>
       </v-card>
+
+       <v-card color="cyan darken-2" class="white--text note" v-if="phoneOrient" :class="pushed ? 'grabbable' : ''" :style="pushed ? 'cursor:move; cursor:grabbing' : 'cursor:grab' ">
+          <router-link v-if="!editMode" :to="{path: `${props.item.notesName}`, params: {id: id}}" class="link"></router-link>
+          <v-layout>
+            <v-flex xs5>
+              <v-card-media
+                :src="props.item.imageSrc ? props.item.imageSrc :'http://via.placeholder.com/350x150'"
+                height="170px"
+                contain
+              >
+              <transition name="fade">
+    <v-btn fab dark 
+    class="editBtn"
+    color="info"
+    v-if="editMode"
+    @click.prevent.stop="editCard(props)" 
+    >
+      <v-icon dark>edit</v-icon>
+    </v-btn>
+        </transition>
+              </v-card-media>
+            </v-flex>
+            <v-flex xs7>
+              <v-card-title primary-title>
+                <div>
+                  <div class="headline">{{props.item.notesName}}</div>
+                  <div>{{props.item.notesDiscription != '' ? props.item.notesDiscription : 'Описание вашей записки'}}</div>
+                </div>
+              </v-card-title>
+            </v-flex>
+          </v-layout>
+          <v-divider light></v-divider>
+          <v-card-actions class="pa-3">
+            <v-subheader class="datatime " title="Дата создания записки" style="text-align:left">{{props.item.noteDate}}</v-subheader>
+            <v-spacer></v-spacer>
+            <v-subheader class="datatime " title="Дата последнего редактирования" style="text-align:right">{{dataTimeNow}}</v-subheader>   
+          </v-card-actions>
+        </v-card>
+
       </template>
     </grid>
     </template>
@@ -456,6 +458,52 @@
     watch: {
       filterByTags: function (value) {
         value.length >= 1 ? this.ska = this.notesVuex.filter((v, key) => v.noteRatio.some(item => value.some(vs => vs === item))) : this.ska = this.$store.getters.notes
+      },
+      notesVuex: function (value) { // Мне сказали что это пиздец, божи абысните как по другому
+        setTimeout(() => {
+          if ((window.innerWidth / window.innerHeight) > 1.5 && window.innerWidth < 1000) {
+            this.phoneOrient = true
+          } else {
+            this.phoneOrient = false
+          }
+          let x = document.getElementById('contain').clientWidth
+          if ((x / 289.5).toFixed(2) - this.ska.length > 1) {
+            this.windowWidth = false
+          } else {
+            this.windowWidth = true
+          }
+          let kyda = false
+          var note = Array.from(document.getElementsByClassName('note'))
+          console.log(note)
+          for (var i = 0; i < note.length; i++) {
+            note[i].addEventListener('touchstart', e => {
+              if (this.editMode) {
+                this.pushed = true
+              }
+            }, false)
+            note[i].addEventListener('touchmove', e => {
+              e.preventDefault()
+              if (e.changedTouches[0].clientY >= this.windowHeightMax) {
+                if (kyda === false) {
+                  this.getDown(undefined, 15)
+                }
+                kyda = true
+              } else if (e.changedTouches[0].clientY <= this.windowHeightMin) {
+                if (kyda === false) {
+                  this.getUp(undefined, 15)
+                }
+                kyda = true
+              } else if (kyda === true) {
+                kyda = false
+                this.clearMove()
+              }
+            }, false)
+          }
+          document.addEventListener('touchend', () => {
+            this.clearMove()
+            this.pushed = false
+          }, false)
+        }, 0)
       }
     },
     methods: {
@@ -611,6 +659,8 @@
         }
         if ((window.innerWidth / window.innerHeight) > 1.5 && window.innerWidth < 1000) {
           this.phoneOrient = true
+        } else {
+          this.phoneOrient = false
         }
       },
       closeModal () {
@@ -630,54 +680,6 @@
       this.windowHeight = document.documentElement.clientHeight
       this.windowHeightMax = this.windowHeight * 0.9
       this.windowHeightMin = this.windowHeight * 0.1
-    },
-    mounted () {
-      if ((window.innerWidth / window.innerHeight) > 1.5 && window.innerWidth < 1000) {
-        this.phoneOrient = true
-      }
-      if (this.notesVuex) {
-        if (document.getElementById('contain')) {
-          let x = document.getElementById('contain').clientWidth
-          if ((x / 289.5).toFixed(2) - this.notesVuex.length > 1) {
-            this.windowWidth = false
-          } else {
-            this.windowWidth = true
-          }
-          console.log(window.innerWidth)
-          console.log(window.innerHeight)
-        }
-        let kyda = false
-        let note = document.getElementsByClassName('note')
-        for (var i = 0; i < note.length; i++) {
-          note[i].addEventListener('touchstart', e => {
-            if (this.editMode) {
-              e.preventDefault()
-              this.pushed = true
-            }
-          }, false)
-
-          note[i].addEventListener('touchmove', e => {
-            if (e.changedTouches[0].clientY >= this.windowHeightMax) {
-              if (kyda === false) {
-                this.getDown(undefined, 15)
-              }
-              kyda = true
-            } else if (e.changedTouches[0].clientY <= this.windowHeightMin) {
-              if (kyda === false) {
-                this.getUp(undefined, 15)
-              }
-              kyda = true
-            } else if (kyda === true) {
-              kyda = false
-              this.clearMove()
-            }
-          }, false)
-        }
-        document.addEventListener('touchend', () => {
-          this.clearMove()
-          this.pushed = false
-        }, false)
-      }
     },
     beforeDestroy () {
       window.removeEventListener('resize', this.getWindowHeight)
