@@ -137,7 +137,8 @@ export default {
           { title: 'Выйти из аккаунта', icon: 'exit_to_app', url: '/', methods: this.onLogout }]
       } else {
         return [ { title: this.registration === true ? 'Авторизация' : 'Регистрация', icon: this.registration === true ? 'fa-sign-in-alt' : 'fa-user-plus', methods: () => { this.registration = !this.registration } },
-        { title: 'О сайте', icon: 'monetization_on' }]
+        // { title: 'О сайте', icon: 'monetization_on' }
+      ]
       }
     },
     user () {

@@ -83,8 +83,12 @@
                   <v-btn color="warning" @click="trigUpload">{{imageSrc != '' || image != null ? 'Изменить изображение' : 'Добавить изображение'}}</v-btn>
                   <v-btn color="error" icon outline @click="clearImage" v-if="imageSrc != '' || image != null"><v-icon>delete_outline</v-icon></v-btn>
                   <v-spacer></v-spacer>
-                  <v-btn color="green" :disabled="!valid || loading" :loading="loading" @click="editMode ? changeNote(): createNote()">
-                    {{ editMode ? 'Изменить' :'Добавить'}}</v-btn>
+                  <v-btn v-if="editMode" color="success" :disabled="!valid || loading" :loading="loading" @click="changeNote">
+                    Изменить
+                  </v-btn>
+                  <v-btn v-else color="success" :disabled="!valid || loading" :loading="loading" @click="createNote">
+                    Добавить
+                  </v-btn>
                   <input ref="fileInput" type="file" style="display:none" accept="image/*" @change="onFileChange">
                 </v-layout>
               </v-list>
@@ -224,18 +228,18 @@
         <v-list-tile slot="activator">
           <v-list-tile-title>Расписание</v-list-tile-title>
         </v-list-tile>
-          <v-btn block color="green accent-4" @click="modalTime = true">
+        <div title="в разработке">
+          <v-btn block disabled color="green accent-4" @click="modalTime = true">
             Добавить расписание
           </v-btn>
+        </div>
       </v-list-group>
     </v-list>
     </v-navigation-drawer>
       </v-layout>
     <br>
     <template v-if="!loading">
-      {{windowWidth}}
     <grid
-    :center="windowWidth"
     :draggable="editMode"
     :sortable="editMode"
     :items="ska"
@@ -539,7 +543,9 @@
         this.imageSrc = ''
       },
       createNote () {
+        console.log('added')
         if (this.$refs.form.validate()) {
+          console.log('added validaten')
           const note = {
             notesName: this.notesName,
             notesDiscription: this.notesDiscription,
