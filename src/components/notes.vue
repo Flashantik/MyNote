@@ -9,7 +9,7 @@
       </div>
     </div>
     <v-dialog v-model="dialog" fullscreen transition="dialog-bottom-transition">
-      <v-card style="overflow:hidden">
+      <v-card style="overflow: hidden">
         <v-toolbar dark color="primary">
           <v-btn icon dark @click.native="dialog = false">
             <v-icon>close</v-icon>
@@ -62,7 +62,7 @@
                 <v-list-tile>
                   <p>Прочее</p>
                 </v-list-tile>
-                Выберети с чем будет связана ваша записка
+                Выберете с чем будет связана ваша записка
                 <v-combobox v-model="noteRatio" :items="noteRatioList" :search-input.sync="search" hide-selected hint="Масимум 5 тегов" label="Добавьте несколько тегов"
                   multiple persistent-hint small-chips box>
                   <template slot="no-data">
